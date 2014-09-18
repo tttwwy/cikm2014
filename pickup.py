@@ -48,7 +48,10 @@ def generate_feature(base_file, feature_file):
                     for label in labels:
                         f.write("{0} {1}\n".format(label, " ".join(features)))
 
+if sys.platform == "win32":
+    generate_feature("test.txt", "features.txt")
+else:
+    generate_feature(sys.argv[1], sys.argv[2])
 
-# generate_feature(sys.argv[1], sys.argv[2])
 
-generate_feature("test.txt", "features.txt")
+
