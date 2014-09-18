@@ -27,7 +27,7 @@ def generate_feature(base_file,feature_file):
     with open(feature_file,"w") as f:
         for session in read_train(base_file):
             features = []
-            for index,labels,query,title in enumerate(session):
+            for index,(labels,query,title) in enumerate(session):
                 if "UNKNOWN" not in labels and "TEST" not in labels:
                     for word in query:
                         features.append(word)
