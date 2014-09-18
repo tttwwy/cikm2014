@@ -9,8 +9,7 @@ def read_train(file_name_read):
         session = []
         for index,line in enumerate(file_read):
             print index
-            line = line.strip("\n")
-            if line:
+            if line and line != "\n":
                 # print line
                 label, query, title = line.split("\t")
                 # print query
@@ -25,9 +24,9 @@ def read_train(file_name_read):
                     title = []
                 session.append([labels, query, title])
             else:
-                yield session
+                if session:
+                    yield session
                 session = []
-        yield session
 
 
 def generate_feature(base_file, feature_file):
@@ -48,10 +47,38 @@ def generate_feature(base_file, feature_file):
                     for label in labels:
                         f.write("{0} {1}\n".format(label, " ".join(features)))
 
+def classify(file_name,train_name,test_name):
+    with open(file_name, "r") as file_read:
+        with open(train_name,"w") as file_train:
+            with open(test_name,"w") as file_test:
+                session = []
+                type = 0
+                for index,line in enumerate(file_read):
+                    print index
+                    if line != "\n" and line:
+                        if line.find("TEST") >= 0:
+                            type = 1
+                        session.append(line)
+                    else:
+                        if type == 1:
+                            file_write = file_test
+                        else:
+                            file_write = file_train
+                        for line in session:
+                            file_write.write(line)
+                        if session:
+                            file_write.write("\n")
+                        type = 0
+                        session = []
+
+
+
 if sys.platform == "win32":
     generate_feature("test.txt", "features.txt")
+    classify("test.txt","train.txt","test_file.txt")
 else:
     generate_feature(sys.argv[1], sys.argv[2])
+    classify(sys.argv[1],sys.argv[2],sys.argv[3])
 
 
 
