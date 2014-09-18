@@ -7,12 +7,13 @@ import sys
 def read_train(file_name_read):
     with open(file_name_read, "r") as file_read:
         session = []
-        for line in file_read:
+        for index,line in enumerate(file_read):
+            print index
             line = line.strip("\n")
             if line:
                 # print line
                 label, query, title = line.split("\t")
-                print query
+                # print query
                 labels = label.split(" | ")
                 for index, label in enumerate(labels):
                     labels[index] = label[6:]
