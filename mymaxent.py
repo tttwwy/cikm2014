@@ -6,6 +6,7 @@ import maxent.cmaxent as cmaxent
 import pickup
 import logging
 import cPickle
+import marshal
 logging.basicConfig(level=logging.DEBUG,
                     format=' %(asctime)s  %(funcName)s %(message)s',
                     datefmt='%Y-%m-%d %H:%M:%S',)
@@ -17,6 +18,8 @@ class Maxent():
         self.m = cmaxent.MaxentModel()
         self.test_dict = collections.defaultdict(list)
         self.labels = ("VIDEO", "NOVEL", "GAME", "TRAVEL", "VIDEO", "LOTTERY", "OTHER")
+
+    def timeit(self,func):
 
     def train(self, feature_file):
         logging.info("training begin")
@@ -55,7 +58,7 @@ class Maxent():
     def save_test_data(self,file_name):
         logging.info("saving test data begin")
         with open(file_name,'w') as f:
-            cPickle.dump(self.test_dict,f)
+            marshal.dump(self.test_dict,f)
         logging.info("saving test data end")
 
 
@@ -63,7 +66,7 @@ class Maxent():
         logging.info("loading test data begin")
 
         with open(file_name,'r') as f:
-            self.test_dict = cPickle.load(f)
+            self.test_dict = marshal.load(f)
         logging.info("loading test data end")
 
 
