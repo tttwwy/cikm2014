@@ -78,12 +78,12 @@ def classify(file_name,train_name,test_name):
                         session = []
 
 
-if sys.platform == "win32":
-    generate_feature_file("test.txt", "features.txt")
-    # classify("test.txt","train.txt","test_file.txt")
-else:
-    generate_feature(sys.argv[1], sys.argv[2])
-    classify(sys.argv[1],sys.argv[2],sys.argv[3])
+# if sys.platform == "win32":
+#     generate_feature_file("test.txt", "features.txt")
+#     # classify("test.txt","train.txt","test_file.txt")
+# else:
+#     generate_feature(sys.argv[1], sys.argv[2])
+#     classify(sys.argv[1],sys.argv[2],sys.argv[3])
 
 
 
