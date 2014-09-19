@@ -6,16 +6,18 @@ import collections
 import marshal
 import time
 import logging
+
 logging.basicConfig(level=logging.DEBUG,
-                    format=' %(asctime)s  %(funcName)s: %(message)s',
-                    datefmt='%Y-%m-%d %H:%M:%S',)
+                    format='%(asctime)s %(message)s',
+                    datefmt='%m-%d %H:%M:%S',)
 def run_time(func):
     def newFunc(*args, **args2):
-        t0 = time.time()
-        logging.info("start")
+        start = time.clock()
+        logging.info("{0}:start".format(func.__name__))
         back = func(*args, **args2)
-        logging.info("end")
-        logging.info("running time {0}".format(time.time() - t0))
+        end = time.clock()
+        logging.info("{0}:end".format(func.__name__))
+        logging.info("running time {0}".format(end-start))
         return back
     return newFunc
 
@@ -96,13 +98,19 @@ def classify(file_name,train_name,test_name):
 
 @run_time
 def generate_complete_test_file(test_file,test_submit_file,result):
-    dict = collections.defaultdict(list)
+    # dict = collections.defaultdict(list)
+    dict = {}
 
     for session in read_train(test_file):
         for labels, query, title in session:
             if "TEST" in labels:
                 query_str = "".join(query)
-                dict[query_str].append(session)
+                if dict.has_key(query_str):
+                    dict[query_str].append(session)
+                else:
+                    dict[query_str] = []
+
+
     with open(test_submit_file,"r") as f:
         with open(result,"w") as f_write:
             for line in f:
@@ -110,7 +118,8 @@ def generate_complete_test_file(test_file,test_submit_file,result):
                 query_str = "".join(query_list)
                 sessions = dict[query_str]
 
-                f_write.write(marshal.dumps([query_list,sessions]) + "\n")
+                f_write.write(marshal.dumps((query_list,sessions)))
+                f_write.write("\n")
 
 @run_time
 def read_test(file_name):
@@ -123,8 +132,11 @@ def read_test(file_name):
 
 
 
-if sys.platform == "win32":
-    generate_feature_file("data/test.txt", "features.txt")
+# if sys.platform == "win32":
+#     # generate_feature_file("data/test.txt", "features.txt")
+#     generate_complete_test_file("data/test.txt","data/submit.txt","data/result.txt")
+#     for session in read_test("data/result.txt"):
+#         print session
     # classify("test.txt","train.txt","test_file.txt")
 # else:
 #     generate_feature(sys.argv[1], sys.argv[2])
