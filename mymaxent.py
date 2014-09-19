@@ -7,6 +7,7 @@ import pickup
 import logging
 import cPickle
 import marshal
+import sqlite3
 logging.basicConfig(level=logging.DEBUG,
                     format=' %(asctime)s  %(funcName)s %(message)s',
                     datefmt='%Y-%m-%d %H:%M:%S',)

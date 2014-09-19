@@ -2,10 +2,11 @@ __author__ = 'Administrator'
 # coding=utf-8
 # label = ("VIDEO", "NOVEL", "GAME", "TRAVEL", "VIDEO", "LOTTERY", "OTHER")
 import sys
+import collections
+import marshal
 
-
-def read_train(file_name_read):
-    with open(file_name_read, "r") as file_read:
+def read_train(file_name):
+    with open(file_name, "r") as file_read:
         session = []
         for index,line in enumerate(file_read):
             print index
@@ -77,6 +78,31 @@ def classify(file_name,train_name,test_name):
                             file_write.write("\n")
                         type = 0
                         session = []
+
+def generate_complete_test_file(test_file,test_submit_file,result):
+    dict = collections.defaultdict(list)
+
+    for session in read_train(test_file):
+        for labels, query, title in session:
+            if "TEST" in labels:
+                query_str = "".join(query)
+                dict[query_str].append(session)
+    with open(test_submit_file,"r") as f:
+        with open(result,"w") as f_write:
+            for line in f:
+                query_list = line.strip().split(" ")
+                query_str = "".join(query_list)
+                sessions = dict[query_str]
+
+                f_write.write(marshal.dumps([query_list,sessions]) + "\n")
+
+def read_test(file_name):
+    with open(file_name,"r") as f:
+        for line in f:
+            line = line.strip("\n")
+            query_list,sessions = marshal.loads(line)
+            yield query_list,sessions
+
 
 
 
