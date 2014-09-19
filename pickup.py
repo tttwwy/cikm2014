@@ -10,7 +10,7 @@ def read_train(file_name_read):
         for index,line in enumerate(file_read):
             print index
             if line and line != "\n":
-                print line
+                # print line
                 label, query, title = line.strip("\n").split("\t")
                 # print query
                 labels = label.split(" | ")
