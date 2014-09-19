@@ -10,8 +10,8 @@ def read_train(file_name_read):
         for index,line in enumerate(file_read):
             print index
             if line and line != "\n":
-                # print line
-                label, query, title = line.split("\t")
+                print line
+                label, query, title = line.strip("\n").split("\t")
                 # print query
                 labels = label.split(" | ")
                 for index, label in enumerate(labels):
@@ -40,6 +40,7 @@ def generate_feature(session, i):
         features.append(word)
     for index in range(len(title)):
         features.append("".join(title[index:index + 2]))
+    # print features
     return features
 
 
@@ -78,8 +79,8 @@ def classify(file_name,train_name,test_name):
                         session = []
 
 
-# if sys.platform == "win32":
-#     generate_feature_file("data/test.txt", "features.txt")
+if sys.platform == "win32":
+    generate_feature_file("data/test.txt", "features.txt")
     # classify("test.txt","train.txt","test_file.txt")
 # else:
 #     generate_feature(sys.argv[1], sys.argv[2])
