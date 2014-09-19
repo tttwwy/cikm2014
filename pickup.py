@@ -79,6 +79,7 @@ def classify(file_name,train_name,test_name):
                         session = []
 
 
+
 if sys.platform == "win32":
     generate_feature_file("data/test.txt", "features.txt")
     # classify("test.txt","train.txt","test_file.txt")

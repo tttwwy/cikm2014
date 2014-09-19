@@ -1,13 +1,15 @@
 # coding=utf-8
 import collections
 import maxent.pymaxent as pymaxent
+
 import maxent.cmaxent as cmaxent
 import pickup
 import logging
+import cPickle
 logging.basicConfig(level=logging.DEBUG,
-            format=' %(asctime)s  %(funcName)s %(message)s',
-            datefmt='%Y-%m-%d %H:%M:%S',
-            )
+                    format=' %(asctime)s  %(funcName)s %(message)s',
+                    datefmt='%Y-%m-%d %H:%M:%S',)
+
 
 class Maxent():
     def __init__(self):
@@ -39,6 +41,17 @@ class Maxent():
         else:
             return sort_list[0][0]
 
+    def read_test_data(self,file_name):
+
+
+    def save_test_data(self,file_name):
+        with open(file_name,'w') as f:
+            cPickle.dump(self.test_dict,f)
+
+    def load_test_data(self,file_name):
+        with open(file_name,'r') as f:
+            self.test_dict = cPickle.load(f)
+
     def test(self, test_data, test_submit, result):
 
         # 将测试数据上下文读入内存
@@ -51,6 +64,13 @@ class Maxent():
         logging.info("reading test data end")
 
         logging.info("submit test begin")
+
+        def session_predict(session, query_list):
+            for index, (label, query, title) in session:
+                if query == query_list:
+                    features = pickup.generate_feature(session, index)
+                    predict_result = self.predict(features)
+                    return predict_result
 
         with open(test_submit, "r") as f_submit:
             with open(result, "w") as f_result:
@@ -67,12 +87,7 @@ class Maxent():
                     predict_result = " | ".join(["CLASS=" + x for x in predict_result])
                     f_result.write("{0} {1}".format(query_str, predict_result))
 
-                    def session_predict(session, query_list):
-                        for index, (label, query, title) in session:
-                            if query == query_list:
-                                features = pickup.generate_feature(session, index)
-                                predict_result = self.predict(features)
-                                return predict_result
+
 
         logging.info("submit test end")
 
