@@ -42,26 +42,32 @@ class Maxent():
             return sort_list[0][0]
 
     def read_test_data(self,file_name):
-
-
-    def save_test_data(self,file_name):
-        with open(file_name,'w') as f:
-            cPickle.dump(self.test_dict,f)
-
-    def load_test_data(self,file_name):
-        with open(file_name,'r') as f:
-            self.test_dict = cPickle.load(f)
-
-    def test(self, test_data, test_submit, result):
-
         # 将测试数据上下文读入内存
         logging.info("reading test data begin")
-        for session in pickup.read_train(test_data):
+        for session in pickup.read_train(file_name):
             for labels, query, title in session:
                 if "TEST" in labels:
                     query_str = "".join(query)
                     self.test_dict[query_str].append(session)
         logging.info("reading test data end")
+
+
+    def save_test_data(self,file_name):
+        logging.info("saving test data begin")
+        with open(file_name,'w') as f:
+            cPickle.dump(self.test_dict,f)
+        logging.info("saving test data end")
+
+
+    def load_test_data(self,file_name):
+        logging.info("loading test data begin")
+
+        with open(file_name,'r') as f:
+            self.test_dict = cPickle.load(f)
+        logging.info("loading test data end")
+
+
+    def test(self, test_data, test_submit, result):
 
         logging.info("submit test begin")
 
