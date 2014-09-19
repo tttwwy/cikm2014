@@ -29,23 +29,29 @@ def read_train(file_name_read):
                 session = []
 
 
-def generate_feature(base_file, feature_file):
+def generate_feature(session, i):
+    features = []
+    labels, query, title = session[i]
+    for word in query:
+        features.append(word)
+    for index in range(len(query)):
+        features.append("".join(query[index:index + 2]))
+    for word in title:
+        features.append(word)
+    for index in range(len(title)):
+        features.append("".join(title[index:index + 2]))
+    return features
+
+
+def generate_feature_file(base_file, feature_file):
     with open(feature_file, "w") as f:
         for session in read_train(base_file):
-            features = []
             for index, (labels, query, title) in enumerate(session):
                 if "UNKNOWN" not in labels and "TEST" not in labels:
-                    for word in query:
-                        features.append(word)
-                    for index in range(len(query)):
-                        features.append("".join(query[index:index + 2]))
-                    for word in title:
-                        features.append(word)
-                    for index in range(len(title)):
-                        features.append("".join(title[index:index + 2]))
-
+                    features = generate_feature(session, index)
                     for label in labels:
                         f.write("{0} {1}\n".format(label, " ".join(features)))
+
 
 def classify(file_name,train_name,test_name):
     with open(file_name, "r") as file_read:
@@ -70,7 +76,6 @@ def classify(file_name,train_name,test_name):
                             file_write.write("\n")
                         type = 0
                         session = []
-
 
 
 if sys.platform == "win32":
