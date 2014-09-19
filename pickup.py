@@ -4,7 +4,22 @@ __author__ = 'Administrator'
 import sys
 import collections
 import marshal
+import time
+import logging
+logging.basicConfig(level=logging.DEBUG,
+                    format=' %(asctime)s  %(funcName)s: %(message)s',
+                    datefmt='%Y-%m-%d %H:%M:%S',)
+def run_time(func):
+    def newFunc(*args, **args2):
+        t0 = time.time()
+        logging.info("start")
+        back = func(*args, **args2)
+        logging.info("end")
+        logging.info("running time {0}".format(time.time() - t0))
+        return back
+    return newFunc
 
+@run_time
 def read_train(file_name):
     with open(file_name, "r") as file_read:
         session = []
@@ -29,7 +44,7 @@ def read_train(file_name):
                     yield session
                 session = []
 
-
+@run_time
 def generate_feature(session, i):
     features = []
     labels, query, title = session[i]
@@ -44,7 +59,7 @@ def generate_feature(session, i):
     # print features
     return features
 
-
+@run_time
 def generate_feature_file(base_file, feature_file):
     with open(feature_file, "w") as f:
         for session in read_train(base_file):
@@ -54,7 +69,7 @@ def generate_feature_file(base_file, feature_file):
                     for label in labels:
                         f.write("{0} {1}\n".format(label, " ".join(features)))
 
-
+@run_time
 def classify(file_name,train_name,test_name):
     with open(file_name, "r") as file_read:
         with open(train_name,"w") as file_train:
@@ -79,6 +94,7 @@ def classify(file_name,train_name,test_name):
                         type = 0
                         session = []
 
+@run_time
 def generate_complete_test_file(test_file,test_submit_file,result):
     dict = collections.defaultdict(list)
 
@@ -96,6 +112,7 @@ def generate_complete_test_file(test_file,test_submit_file,result):
 
                 f_write.write(marshal.dumps([query_list,sessions]) + "\n")
 
+@run_time
 def read_test(file_name):
     with open(file_name,"r") as f:
         for line in f:

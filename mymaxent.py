@@ -8,9 +8,7 @@ import logging
 import cPickle
 import marshal
 import sqlite3
-logging.basicConfig(level=logging.DEBUG,
-                    format=' %(asctime)s  %(funcName)s %(message)s',
-                    datefmt='%Y-%m-%d %H:%M:%S',)
+
 
 
 class Maxent():
@@ -20,10 +18,8 @@ class Maxent():
         self.test_dict = collections.defaultdict(list)
         self.labels = ("VIDEO", "NOVEL", "GAME", "TRAVEL", "VIDEO", "LOTTERY", "OTHER")
 
-    def timeit(self,func):
-
+    @pickup.run_time
     def train(self, feature_file):
-        logging.info("training begin")
         self.m.begin_add_event()
         with open(feature_file, "r") as f:
             for line in f:
@@ -34,7 +30,6 @@ class Maxent():
 
         self.m.end_add_event()
         self.m.train(150, 'lbfgs', 4, 1E-05)
-        logging.info("training end")
         self.m.save("data/model.txt")
 
     def predict(self, feature):
@@ -47,13 +42,11 @@ class Maxent():
 
     def read_test_data(self,file_name):
         # 将测试数据上下文读入内存
-        logging.info("reading test data begin")
         for session in pickup.read_train(file_name):
             for labels, query, title in session:
                 if "TEST" in labels:
                     query_str = "".join(query)
                     self.test_dict[query_str].append(session)
-        logging.info("reading test data end")
 
 
     def save_test_data(self,file_name):
