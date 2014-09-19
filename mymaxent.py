@@ -1,7 +1,7 @@
 # coding=utf-8
 import collections
-import mymaxent.pymaxent as pymaxent
-import mymaxent.cmaxent as cmaxent
+import maxent.pymaxent as pymaxent
+import maxent.cmaxent as cmaxent
 import pickup
 
 
