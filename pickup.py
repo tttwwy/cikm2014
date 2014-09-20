@@ -179,7 +179,7 @@ def read_test(file_name):
 def test_file(newtest_name,result_name,model):
     with open(result_name,'w') as f:
         for index,(query,sessions) in enumerate(read_test(newtest_name)):
-            logging.debug("{0}:{1}".format(index,query))
+            logging.info("{0}:{1}".format(index,query))
             predict_result = model.test(query,sessions)
             predict_str = " | ".join(["CLASS=" + x for x in predict_result])
             logging.debug("{0}:{1}".format(index,predict_str))
