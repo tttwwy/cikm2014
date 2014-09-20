@@ -5,10 +5,16 @@ import sys
 import collections
 import time
 import logging
+if sys.platform == "win32":
+    log_level = logging.DEBUG
+else:
+    log_level = logging.INFO
 
-logging.basicConfig(level=logging.DEBUG,
+logging.basicConfig(level=log_level,
                     format='%(asctime)s %(message)s',
                     datefmt='%m-%d %H:%M:%S',)
+
+
 def run_time(func):
     def newFunc(*args, **args2):
         start = time.clock()
@@ -20,7 +26,7 @@ def run_time(func):
         return back
     return newFunc
 
-@run_time
+
 def read_train(file_name):
     with open(file_name, "r") as file_read:
         session = []
@@ -109,14 +115,14 @@ def generate_full_test_file(test_file,test_submit_file,result):
                 else:
                     dict[query_str] = [session]
 
-    print dict
+    # print dict
     with open(test_submit_file,"r") as f:
         with open(result,"w") as f_write:
             for line in f:
                 query_list = line.strip().split(" ")
                 query_str = "".join(query_list)
                 sessions = dict[query_str]
-                print sessions
+                # print sessions
 
                 str = "{0}\t{1}\t{2}\n".format("CLASS=SUBMIT"," ".join(query_list),"-")
                 for session in sessions:
