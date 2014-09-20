@@ -3,7 +3,6 @@ __author__ = 'Administrator'
 # label = ("VIDEO", "NOVEL", "GAME", "TRAVEL", "VIDEO", "LOTTERY", "OTHER")
 import sys
 import collections
-import marshal
 import time
 import logging
 
@@ -26,7 +25,7 @@ def read_train(file_name):
     with open(file_name, "r") as file_read:
         session = []
         for index,line in enumerate(file_read):
-            print index
+            # print index
             if line and line != "\n":
                 # print line
                 label, query, title = line.strip("\n").split("\t")
@@ -97,8 +96,7 @@ def classify(file_name,train_name,test_name):
                         session = []
 
 @run_time
-def generate_complete_test_file(test_file,test_submit_file,result):
-    # dict = collections.defaultdict(list)
+def generate_full_test_file(test_file,test_submit_file,result):
     dict = {}
 
     for session in read_train(test_file):
@@ -106,37 +104,77 @@ def generate_complete_test_file(test_file,test_submit_file,result):
             if "TEST" in labels:
                 query_str = "".join(query)
                 if dict.has_key(query_str):
-                    dict[query_str].append(session)
+                    if session != dict[query_str][-1]:
+                        dict[query_str].append(session)
                 else:
-                    dict[query_str] = []
+                    dict[query_str] = [session]
 
-
+    print dict
     with open(test_submit_file,"r") as f:
         with open(result,"w") as f_write:
             for line in f:
                 query_list = line.strip().split(" ")
                 query_str = "".join(query_list)
                 sessions = dict[query_str]
+                print sessions
 
-                f_write.write(marshal.dumps((query_list,sessions)))
-                f_write.write("\n")
+                str = "{0}\t{1}\t{2}\n".format("CLASS=SUBMIT"," ".join(query_list),"-")
+                for session in sessions:
+                    for labels,query,title in session:
+                        # print "labels:",labels
+                        label_str = "|".join(["CLASS="+ x  for x in labels])
+                        # print label_str
+                        str += "{0}\t{1}\t{2}\n".format(label_str," ".join(query)," ".join(title) )
+                    str += "\n"
+                f_write.write(str)
+
 
 @run_time
 def read_test(file_name):
     with open(file_name,"r") as f:
+        query_list = []
+        sessions = []
+        session = []
         for line in f:
-            line = line.strip("\n")
-            query_list,sessions = marshal.loads(line)
-            yield query_list,sessions
+            if line:
+                if line != "\n":
+                    labels,query,title = line.strip("\n").split("\t")
+                    labels = labels.split(" | ")
+                    for index,label in enumerate(labels):
+                        labels[index] = label[6:]
+                    query_list = query.split(" ")
+                    title = title.split(" ")
+                    if "SUBMIT" in labels:
+                        if query_list:
+                            yield query_list,sessions
+                            query_list = []
+                            sessions = []
+                            session = []
+                        else:
+                            query_list = query
+                            sessions = []
+                            session = []
+                    else:
+                        session.append([query_list,labels,title])
+                else:
+                    sessions.append(session)
+                    session = []
+            else:
+                yield query_list,sessions
+
+
+
+            # query_list,sessions = marshal.loads(line)
+            # yield query_list,sessions
 
 
 
 
-# if sys.platform == "win32":
-#     # generate_feature_file("data/test.txt", "features.txt")
-#     generate_complete_test_file("data/test.txt","data/submit.txt","data/result.txt")
-#     for session in read_test("data/result.txt"):
-#         print session
+if sys.platform == "win32":
+    # generate_feature_file("data/test.txt", "features.txt")
+    generate_full_test_file("data/test.txt","data/submit.txt","data/result.txt")
+    for session in read_test("data/result.txt"):
+        print session
     # classify("test.txt","train.txt","test_file.txt")
 # else:
 #     generate_feature(sys.argv[1], sys.argv[2])
