@@ -57,33 +57,11 @@ class Maxent():
                     "TRAVELZIPCODE",)
         result_list = [(label, self.m.eval(feature, label)) for label in self.labels]
         sort_list = sorted(result_list, key=lambda x: x[1], reverse=True)
-        if sort_list[0][1] - sort_list[1][1] <= 0.3 and sort_list[0][0] + sort_list[1][0] in double:
+        if sort_list[0][1] - sort_list[1][1] <= 0.15 and sort_list[0][0] + sort_list[1][0] in double:
             return (sort_list[0][0], sort_list[1][0])
         else:
             return (sort_list[0][0],)
 
-    def read_test_data(self,file_name):
-        # 将测试数据上下文读入内存
-        for session in pickup.read_train(file_name):
-            for labels, query, title in session:
-                if "TEST" in labels:
-                    query_str = "".join(query)
-                    self.test_dict[query_str].append(session)
-
-
-    def save_test_data(self,file_name):
-        logging.info("saving test data begin")
-        with open(file_name,'w') as f:
-            marshal.dump(self.test_dict,f)
-        logging.info("saving test data end")
-
-
-    def load_test_data(self,file_name):
-        logging.info("loading test data begin")
-
-        with open(file_name,'r') as f:
-            self.test_dict = marshal.load(f)
-        logging.info("loading test data end")
 
     def session_predict(self,query_list,session):
         for index, (label, query, title) in enumerate(session):
@@ -104,30 +82,3 @@ class Maxent():
         logging.debug("predict_result:{0}".format(predict_result))
 
         return predict_result
-        # predict_result = " | ".join(["CLASS=" + x for x in predict_result])
-        # f_result.write("{0} {1}".format(query_str, predict_result))
-
-    # def test(self, test_data, test_submit, result):
-    #
-    #     logging.info("submit test begin")
-    #
-    #
-    #     with open(test_submit, "r") as f_submit:
-    #         with open(result, "w") as f_result:
-    #             for line in f_submit:
-    #                 query_list = line.strip().split(" ")
-    #                 query_str = "".join(query_list)
-    #                 sessions = self.test_dict[query_str]
-    #
-    #                 predict_results = []
-    #                 for session in sessions:
-    #                     predict_results.append(session_predict(session, query_list))
-    #
-    #                 predict_result = predict_results[0]
-    #                 predict_result = " | ".join(["CLASS=" + x for x in predict_result])
-    #                 f_result.write("{0} {1}".format(query_str, predict_result))
-    #
-    #
-    #
-    #     logging.info("submit test end")
-    #
