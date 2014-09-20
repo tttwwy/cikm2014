@@ -27,15 +27,28 @@ def run_time(func):
     return newFunc
 
 
+@run_time
+def separate_file(file_name,result_name):
+    with open(file_name, "r") as file_read:
+        with open(result_name,"w") as file_write:
+            for line in file_read:
+                line = line.strip("\n")
+                if line:
+                    label, query, title = line.split("\t")
+                    file_write.write(query + "\n")
+                    if len(title) > 2:
+                        file_write.write(title + "\n")
+
+
+
+
+
 def read_train(file_name):
     with open(file_name, "r") as file_read:
         session = []
         for index,line in enumerate(file_read):
-            # print index
             if line and line != "\n":
-                # print line
                 label, query, title = line.strip("\n").split("\t")
-                # print query
                 labels = label.split(" | ")
                 for index, label in enumerate(labels):
                     labels[index] = label[6:]
