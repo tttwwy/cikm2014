@@ -184,7 +184,7 @@ def test_file(newtest_name,result_name,model):
             predict_str = " | ".join(["CLASS=" + x for x in predict_result])
             logging.debug("{0}:{1}".format(index,predict_str))
 
-            f.write("{0} {1}\n".format(" ".join(query), predict_str))
+            f.write("{0}\t{1}\n".format(" ".join(query), predict_str))
 
 if sys.platform == "win32":
     # generate_feature_file("data/test.txt", "features.txt")
