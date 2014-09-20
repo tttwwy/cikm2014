@@ -36,9 +36,9 @@ class Maxent():
         result_list = [(label, self.m.eval(feature, label)) for label in self.labels]
         sort_list = sorted(result_list, key=lambda x: x[1], reverse=True)
         if sort_list[0][1] - sort_list[1][1] <= 0.3:
-            return sort_list[0][0], sort_list[1][0]
+            return (sort_list[0][0], sort_list[1][0])
         else:
-            return sort_list[0][0]
+            return (sort_list[0][0],)
 
     def read_test_data(self,file_name):
         # 将测试数据上下文读入内存
