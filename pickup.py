@@ -132,9 +132,7 @@ def generate_full_test_file(test_file,test_submit_file,result):
                 str = "{0}\t{1}\t{2}\n".format("CLASS=SUBMIT"," ".join(query_list),"-")
                 for session in sessions:
                     for labels,query,title in session:
-                        # print "labels:",labels
                         label_str = "|".join(["CLASS="+ x  for x in labels])
-                        # print label_str
                         str += "{0}\t{1}\t{2}\n".format(label_str," ".join(query)," ".join(title) )
                     str += "\n"
                 f_write.write(str)

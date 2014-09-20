@@ -65,12 +65,12 @@ class Maxent():
 
     def session_predict(self,query_list,session):
         predict_result = []
-        for index, (label, query, title) in enumerate(session):
+        for index, (labels, query, title) in enumerate(session):
             if query == query_list:
                 features = pickup.generate_feature(session, index)
                 predict_result = self.predict(features)
-            if label != "UNKNOWN" and label != "TEST":
-               predict_result = (label,1.0)
+            if "UNKNOWN" not in labels and "TEST" not in labels:
+                predict_result = (labels,1.0)
 
         return predict_result
 
