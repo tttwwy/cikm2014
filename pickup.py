@@ -8,7 +8,7 @@ import logging
 if sys.platform == "win32":
     log_level = logging.DEBUG
 else:
-    log_level = logging.DEBUG
+    log_level = logging.INFO
 
 logging.basicConfig(level=log_level,
                     format='%(asctime)s %(message)s',

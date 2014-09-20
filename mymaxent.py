@@ -64,7 +64,7 @@ class Maxent():
         logging.info("loading test data end")
 
     def session_predict(self,query_list,session):
-        for index, (label, query, title) in session:
+        for index, (label, query, title) in enumerate(session):
             if query == query_list:
                 features = pickup.generate_feature(session, index)
                 predict_result = self.predict(features)
