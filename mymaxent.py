@@ -84,10 +84,10 @@ class Maxent():
 
         dict = self.test_dict = collections.defaultdict(int)
         for predict_result in predict_results:
-            dict[predict_result[0]] += 1
+            dict[" ".join(predict_result[0])] += 1
 
         dict = sorted(dict.iteritems(),key=lambda x:dict[x],reverse=True)
-        predict_result = dict[0][0]
+        predict_result = dict[0][0].split(" ")
         logging.debug("predict_result:{0}".format(predict_result))
 
         return predict_result
