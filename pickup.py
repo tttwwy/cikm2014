@@ -104,7 +104,7 @@ def classify(file_name,train_name,test_name):
 @run_time
 def generate_full_test_file(test_file,test_submit_file,result):
     dict = {}
-
+    logging.info("reading test start")
     for session in read_train(test_file):
         for labels, query, title in session:
             if "TEST" in labels:
@@ -114,15 +114,20 @@ def generate_full_test_file(test_file,test_submit_file,result):
                         dict[query_str].append(session)
                 else:
                     dict[query_str] = [session]
+    logging.info("reading test end")
 
-    # print dict
+    logging.info("saving test start")
+
+
     with open(test_submit_file,"r") as f:
+        index = 0
         with open(result,"w") as f_write:
             for line in f:
+                logging.info("reading test:{0}".format(index))
+
                 query_list = line.strip().split(" ")
                 query_str = "".join(query_list)
                 sessions = dict[query_str]
-                # print sessions
 
                 str = "{0}\t{1}\t{2}\n".format("CLASS=SUBMIT"," ".join(query_list),"-")
                 for session in sessions:
@@ -133,7 +138,7 @@ def generate_full_test_file(test_file,test_submit_file,result):
                         str += "{0}\t{1}\t{2}\n".format(label_str," ".join(query)," ".join(title) )
                     str += "\n"
                 f_write.write(str)
-
+                index += 1
 
 @run_time
 def read_test(file_name):
