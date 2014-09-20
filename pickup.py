@@ -147,7 +147,7 @@ def read_test(file_name):
         sessions = []
         session = []
         for line in f:
-            if line:
+            if line != "":
                 if line != "\n":
                     labels,query,title = line.strip("\n").split("\t")
                     labels = labels.split(" | ")
@@ -166,8 +166,7 @@ def read_test(file_name):
                 else:
                     sessions.append(session)
                     session = []
-            else:
-                yield test_query_list,sessions
+            yield test_query_list,sessions
 
 
 
