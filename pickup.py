@@ -143,7 +143,7 @@ def generate_full_test_file(test_file,test_submit_file,result):
 @run_time
 def read_test(file_name):
     with open(file_name,"r") as f:
-        query_list = []
+        test_query_list = []
         sessions = []
         session = []
         for line in f:
@@ -156,13 +156,13 @@ def read_test(file_name):
                     query_list = query.split(" ")
                     title = title.split(" ")
                     if "SUBMIT" in labels:
-                        if query_list:
-                            yield query_list,sessions
-                            query_list = []
+                        if test_query_list:
+                            yield test_query_list,sessions
+                            test_query_list = []
                             sessions = []
                             session = []
                         else:
-                            query_list = query
+                            test_query_list = query_list
                             sessions = []
                             session = []
                     else:
@@ -171,7 +171,7 @@ def read_test(file_name):
                     sessions.append(session)
                     session = []
             else:
-                yield query_list,sessions
+                yield test_query_list,sessions
 
 
 
