@@ -33,7 +33,7 @@ class Maxent():
         self.m.save("data/model.txt")
 
     def predict(self, feature):
-        double = ["GAMELOTTERY",
+        double = ("GAMELOTTERY",
                     "GAMENOVEL",
                     "GAMETRAVEL",
                     "GAMEVIDEO",
@@ -43,11 +43,21 @@ class Maxent():
                     "VIDEOLOTTERY",
                     "VIDEONOVEL",
                     "VIDEOTRAVEL",
-                    "ZIPCODETRAVEL"]
+                    "ZIPCODETRAVEL",
+                    "LOTTERYGAME",
+                    "NOVELGAME",
+                    "TRAVELGAME",
+                    "VIDEOGAME",
+                    "GAMENOVEL",
+                    "VIDEONOVEL",
+                    "GAMEVIDEO",
+                    "LOTTERYVIDEO",
+                    "NOVELVIDEO",
+                    "TRAVELVIDEO",
+                    "TRAVELZIPCODE",)
         result_list = [(label, self.m.eval(feature, label)) for label in self.labels]
         sort_list = sorted(result_list, key=lambda x: x[1], reverse=True)
-        if sort_list[0][1] - sort_list[1][1] <= 0.3 and \
-                (sort_list[0][0] + sort_list[1][0] in double or sort_list[1][0] + sort_list[0][0] in double):
+        if sort_list[0][1] - sort_list[1][1] <= 0.3 and sort_list[0][0] + sort_list[1][0] in double:
             return (sort_list[0][0], sort_list[1][0])
         else:
             return (sort_list[0][0],)
