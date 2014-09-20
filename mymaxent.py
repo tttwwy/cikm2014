@@ -55,20 +55,24 @@ class Maxent():
                     "NOVELVIDEO",
                     "TRAVELVIDEO",
                     "TRAVELZIPCODE",)
-        result_list = [(label, self.m.eval(feature, label)) for label in self.labels]
+        result_list = [((label,), self.m.eval(feature, label)) for label in self.labels]
         sort_list = sorted(result_list, key=lambda x: x[1], reverse=True)
         if sort_list[0][1] - sort_list[1][1] <= 0.15 and sort_list[0][0] + sort_list[1][0] in double:
-            return (sort_list[0][0], sort_list[1][0])
+            return ((sort_list[0][0],sort_list[1][0]), max(sort_list[0][1],sort_list[1][1]))
         else:
-            return (sort_list[0][0],)
+            return sort_list[0]
 
 
     def session_predict(self,query_list,session):
+        predict_result = []
         for index, (label, query, title) in enumerate(session):
             if query == query_list:
                 features = pickup.generate_feature(session, index)
                 predict_result = self.predict(features)
-                return predict_result
+            if label != "UNKNOWN" and label != "TEST":
+               predict_result = (label,1.0)
+
+        return predict_result
 
 
     def test(self,query_list,sessions):
@@ -78,7 +82,8 @@ class Maxent():
         for session in sessions:
             predict_results.append(self.session_predict(query_list,session))
 
-        predict_result = predict_results[0]
+        sorted(predict_results,key=lambda x:x[1],reverse=True)
+        predict_result = predict_results[0][0]
         logging.debug("predict_result:{0}".format(predict_result))
 
         return predict_result
