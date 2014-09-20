@@ -63,34 +63,45 @@ class Maxent():
             self.test_dict = marshal.load(f)
         logging.info("loading test data end")
 
-
-    def test(self, test_data, test_submit, result):
-
-        logging.info("submit test begin")
-
-        def session_predict(session, query_list):
-            for index, (label, query, title) in session:
-                if query == query_list:
-                    features = pickup.generate_feature(session, index)
-                    predict_result = self.predict(features)
-                    return predict_result
-
-        with open(test_submit, "r") as f_submit:
-            with open(result, "w") as f_result:
-                for line in f_submit:
-                    query_list = line.strip().split(" ")
-                    query_str = "".join(query_list)
-                    sessions = self.test_dict[query_str]
-
-                    predict_results = []
-                    for session in sessions:
-                        predict_results.append(session_predict(session, query_list))
-
-                    predict_result = predict_results[0]
-                    predict_result = " | ".join(["CLASS=" + x for x in predict_result])
-                    f_result.write("{0} {1}".format(query_str, predict_result))
+    def session_predict(self,query_list,session):
+        for index, (label, query, title) in session:
+            if query == query_list:
+                features = pickup.generate_feature(session, index)
+                predict_result = self.predict(features)
+                return predict_result
 
 
+    def test(self,query_list,sessions):
+        predict_results = []
+        for session in sessions:
+            predict_results.append(self.session_predict(query_list,session))
 
-        logging.info("submit test end")
+        predict_result = predict_results[0]
+        return predict_result
+        # predict_result = " | ".join(["CLASS=" + x for x in predict_result])
+        # f_result.write("{0} {1}".format(query_str, predict_result))
 
+    # def test(self, test_data, test_submit, result):
+    #
+    #     logging.info("submit test begin")
+    #
+    #
+    #     with open(test_submit, "r") as f_submit:
+    #         with open(result, "w") as f_result:
+    #             for line in f_submit:
+    #                 query_list = line.strip().split(" ")
+    #                 query_str = "".join(query_list)
+    #                 sessions = self.test_dict[query_str]
+    #
+    #                 predict_results = []
+    #                 for session in sessions:
+    #                     predict_results.append(session_predict(session, query_list))
+    #
+    #                 predict_result = predict_results[0]
+    #                 predict_result = " | ".join(["CLASS=" + x for x in predict_result])
+    #                 f_result.write("{0} {1}".format(query_str, predict_result))
+    #
+    #
+    #
+    #     logging.info("submit test end")
+    #

@@ -179,7 +179,13 @@ def read_test(file_name):
             # yield query_list,sessions
 
 
-
+@run_time
+def test_file(newtest_name,result_name,model):
+    with open(result_name,'w') as f:
+        for query,sessions in read_test(newtest_name):
+            predict_result = model.test(query,sessions)
+            predict_str = " | ".join(["CLASS=" + x for x in predict_result])
+            f.write("{0} {1}\n".format(" ".join(query), predict_result))
 
 if sys.platform == "win32":
     # generate_feature_file("data/test.txt", "features.txt")
