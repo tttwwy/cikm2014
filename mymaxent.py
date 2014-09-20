@@ -16,7 +16,7 @@ class Maxent():
 
         self.m = cmaxent.MaxentModel()
         self.test_dict = collections.defaultdict(list)
-        self.labels = ("VIDEO", "NOVEL", "GAME", "TRAVEL", "VIDEO", "LOTTERY", "OTHER")
+        self.labels = ("ZIPCODE","NOVEL", "GAME", "TRAVEL", "VIDEO", "LOTTERY", "OTHER")
 
     @pickup.run_time
     def train(self, feature_file):

@@ -51,7 +51,7 @@ def read_train(file_name):
                     yield session
                 session = []
 
-@run_time
+
 def generate_feature(session, i):
     features = []
     labels, query, title = session[i]
@@ -187,7 +187,8 @@ def test_file(newtest_name,result_name,model):
         for query,sessions in read_test(newtest_name):
             predict_result = model.test(query,sessions)
             predict_str = " | ".join(["CLASS=" + x for x in predict_result])
-            f.write("{0} {1}\n".format(" ".join(query), predict_result))
+            logging.debug()
+            f.write("{0} {1}\n".format(" ".join(query), predict_str))
 
 if sys.platform == "win32":
     # generate_feature_file("data/test.txt", "features.txt")
