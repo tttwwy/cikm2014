@@ -82,8 +82,12 @@ class Maxent():
         for session in sessions:
             predict_results.append(self.session_predict(query_list,session))
 
-        sorted(predict_results,key=lambda x:x[1],reverse=True)
-        predict_result = predict_results[0][0]
+        dict = self.test_dict = collections.defaultdict(int)
+        for predict_result in predict_results:
+            dict[predict_result[0]] += 1
+
+        dict = sorted(dict.iteritems(),key=lambda x:dict[x],reverse=True)
+        predict_result = dict[0][0]
         logging.debug("predict_result:{0}".format(predict_result))
 
         return predict_result
