@@ -168,7 +168,7 @@ def read_test(file_name):
                             sessions = []
                             session = []
                     else:
-                        session.append([query_list,labels,title])
+                        session.append([labels,query_list,title])
                 else:
                     sessions.append(session)
                     session = []
