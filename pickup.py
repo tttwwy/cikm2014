@@ -8,7 +8,7 @@ import logging
 if sys.platform == "win32":
     log_level = logging.DEBUG
 else:
-    log_level = logging.INFO
+    log_level = logging.DEBUG
 
 logging.basicConfig(level=log_level,
                     format='%(asctime)s %(message)s',
@@ -147,6 +147,8 @@ def read_test(file_name):
         sessions = []
         session = []
         for line in f:
+            logging.debug("line:{0}".format(line))
+
             if line:
                 if line != "\n":
                     labels,query,title = line.strip("\n").split("\t")

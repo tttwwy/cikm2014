@@ -72,6 +72,8 @@ class Maxent():
 
 
     def test(self,query_list,sessions):
+        logging.debug("{0} {1}".format(query_list,sessions))
+
         predict_results = []
         for session in sessions:
             predict_results.append(self.session_predict(query_list,session))
