@@ -147,7 +147,6 @@ def read_test(file_name):
         sessions = []
         session = []
         for line in f:
-            logging.debug("line:{0}".format(line))
 
             if line:
                 if line != "\n":
@@ -184,10 +183,12 @@ def read_test(file_name):
 @run_time
 def test_file(newtest_name,result_name,model):
     with open(result_name,'w') as f:
-        for query,sessions in read_test(newtest_name):
+        for index,query,sessions in enumerate(read_test(newtest_name)):
+            logging.debug("{0}:{1}".format(index,query))
             predict_result = model.test(query,sessions)
             predict_str = " | ".join(["CLASS=" + x for x in predict_result])
-            logging.debug()
+            logging.debug("{0}:{1}".format(index,predict_str))
+
             f.write("{0} {1}\n".format(" ".join(query), predict_str))
 
 if sys.platform == "win32":
