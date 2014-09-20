@@ -166,7 +166,7 @@ def read_test(file_name):
                 else:
                     sessions.append(session)
                     session = []
-            yield test_query_list,sessions
+        yield test_query_list,sessions
 
 
 
