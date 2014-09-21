@@ -64,9 +64,9 @@ class Maxent():
         #           "NOVELVIDEO",
         #           "TRAVELVIDEO",
         #           "TRAVELZIPCODE",)
-        result_list = [((label,), self.m.eval(feature, label)) for label in self.labels]
+        result_list = [(label.split("|"), self.m.eval(feature, label)) for label in self.labels]
         sort_list = sorted(result_list, key=lambda x: x[1], reverse=True)
-        sort_list[0][0].split("|")
+        # sort_list[0][0].split("|")
         return sort_list[0]
 
         # if sort_list[0][1] - sort_list[1][1] <= 0.15 and sort_list[0][0] + sort_list[1][0] in double:
