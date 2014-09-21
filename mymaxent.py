@@ -57,6 +57,7 @@ class Maxent():
                     "TRAVELZIPCODE",)
         result_list = [((label,), self.m.eval(feature, label)) for label in self.labels]
         sort_list = sorted(result_list, key=lambda x: x[1], reverse=True)
+
         if sort_list[0][1] - sort_list[1][1] <= 0.15 and sort_list[0][0] + sort_list[1][0] in double:
             return ((sort_list[0][0],sort_list[1][0]), max(sort_list[0][1],sort_list[1][1]))
         else:
@@ -72,6 +73,7 @@ class Maxent():
             if "UNKNOWN" not in labels and "TEST" not in labels:
                 predict_result = (labels,1.0)
 
+
         return predict_result
 
 
@@ -82,6 +84,7 @@ class Maxent():
         for session in sessions:
             predict_results.append(self.session_predict(query_list,session))
 
+        logging.info("predict:{0}\nsessions:{1}\n".format(query_list,predict_results))
         dict = self.test_dict = collections.defaultdict(int)
         for predict_result in predict_results:
             dict[" ".join(predict_result[0])] += 1
