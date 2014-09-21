@@ -35,8 +35,13 @@ class Maxent():
 
         self.m.end_add_event()
         self.m.train(150, 'lbfgs', 4, 1E-05)
-        self.m.save("data/model.txt")
 
+    def save(self,model_name):
+        self.m.save(model_name)
+
+    def load(self,model_name):
+        self.m.load(model_name)
+        
     def predict(self, feature):
 
         result_list = [(label.split("|"), self.m.eval(feature, label)) for label in self.labels]
