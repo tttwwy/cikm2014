@@ -54,14 +54,14 @@ def read_train(file_name):
 
 
 def generate_feature(session, i):
-    features = []
+    features = {}
     labels, query, title = session[i]
     for word in query:
-        features.append(word)
+        features[word] = 1
     for index in range(len(query)):
-        features.append("title"+ "".join(query[index:index + 2]))
+        features["".join(query[index:index + 2])] = 1
     for word in title:
-        features.append(word)
+        features["title" + word] = 1
     for index in range(len(title)):
         features.append("title" + "".join(title[index:index + 2]))
     # print features
@@ -74,8 +74,9 @@ def generate_feature_file(base_file, feature_file):
             for index, (labels, query, title) in enumerate(session):
                 if "UNKNOWN" not in labels and "TEST" not in labels:
                     features = generate_feature(session, index)
+                    
                     for label in labels:
-                        f.write("{0} {1}\n".format(label, " ".join(features)))
+                        f.write("{0} {1}\n".format(label, " ".join(features.keys())))
 
 @run_time
 def classify(file_name,train_name,test_name):

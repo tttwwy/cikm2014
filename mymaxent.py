@@ -1,58 +1,37 @@
 # coding=utf-8
 import collections
-import maxent.pymaxent as pymaxent
-
-import maxent.cmaxent as cmaxent
+# import maxent.pymaxent as pymaxent
+#
+# import maxent.cmaxent as cmaxent
 import pickup
 import logging
 import cPickle
-import marshal
-
+# import marshal
+import nltk
 
 class Maxent():
     def __init__(self):
-
-        self.m = cmaxent.MaxentModel()
-        self.test_dict = collections.defaultdict(list)
-        self.labels = ("ZIPCODE", "NOVEL", "GAME", "TRAVEL", "VIDEO", "LOTTERY", "OTHER")
+        nltk.config_megam('/home/wangzhe/tool/ml/MEGAM/megam-64.opt')
+        self.m = nltk.maxent.MaxentClassifier()
+        # self.test_dict = collections.defaultdict(list)
+        # self.labels = ("ZIPCODE", "NOVEL", "GAME", "TRAVEL", "VIDEO", "LOTTERY", "OTHER")
 
     @pickup.run_time
     def train(self, feature_file):
-        self.m.begin_add_event()
+        features = []
         with open(feature_file, "r") as f:
             for line in f:
                 line = line.strip().split()
                 context = line[1:]
+                context_dict = {}
+                for index,item in enumerate(context):
+                    context_dict[index] = item
                 label = line[0]
-                self.m.add_event(context, label)
+                features.append((context_dict,label))
+        self.m.train(features,algorithm='MEGAM',trace=0,gaussian_prior_sigma=4.0)
 
-        self.m.end_add_event()
-        self.m.train(150, 'lbfgs', 4, 1E-05)
-        self.m.save("data/model.txt")
 
     def predict(self, feature):
-        double = ("GAMELOTTERY",
-                  "GAMENOVEL",
-                  "GAMETRAVEL",
-                  "GAMEVIDEO",
-                  "NOVELGAME",
-                  "NOVELVIDEO",
-                  "VIDEOGAME",
-                  "VIDEOLOTTERY",
-                  "VIDEONOVEL",
-                  "VIDEOTRAVEL",
-                  "ZIPCODETRAVEL",
-                  "LOTTERYGAME",
-                  "NOVELGAME",
-                  "TRAVELGAME",
-                  "VIDEOGAME",
-                  "GAMENOVEL",
-                  "VIDEONOVEL",
-                  "GAMEVIDEO",
-                  "LOTTERYVIDEO",
-                  "NOVELVIDEO",
-                  "TRAVELVIDEO",
-                  "TRAVELZIPCODE",)
         result_list = [((label,), self.m.eval(feature, label)) for label in self.labels]
         sort_list = sorted(result_list, key=lambda x: x[1], reverse=True)
 
