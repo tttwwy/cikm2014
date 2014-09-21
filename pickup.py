@@ -53,29 +53,7 @@ def read_train(file_name):
                 session = []
 
 
-def generate_feature(session, i):
-    features = []
-    labels, query, title = session[i]
-    for word in query:
-        features.append(word)
-    for index in range(len(query)):
-        features.append("title"+ "".join(query[index:index + 2]))
-    for word in title:
-        features.append(word)
-    for index in range(len(title)):
-        features.append("title" + "".join(title[index:index + 2]))
-    # print features
-    return features
 
-@run_time
-def generate_feature_file(base_file, feature_file):
-    with open(feature_file, "w") as f:
-        for session in read_train(base_file):
-            for index, (labels, query, title) in enumerate(session):
-                if "UNKNOWN" not in labels and "TEST" not in labels:
-                    features = generate_feature(session, index)
-                    for label in labels:
-                        f.write("{0} {1}\n".format(label, " ".join(features)))
 
 @run_time
 def classify(file_name,train_name,test_name):
@@ -138,6 +116,33 @@ def generate_full_test_file(test_file,test_submit_file,result):
                     str += "\n"
                 f_write.write(str)
                 index += 1
+
+def generate_feature(session, i):
+    features = []
+    labels, query, title = session[i]
+    for word in query:
+        features.append(word)
+    for index in range(len(query)):
+        features.append("title"+ "".join(query[index:index + 2]))
+    for word in title:
+        features.append(word)
+    for index in range(len(title)):
+        features.append("title" + "".join(title[index:index + 2]))
+    # print features
+    return features
+
+
+@run_time
+def generate_feature_file(base_file, feature_file):
+    with open(feature_file, "w") as f:
+        for session in read_train(base_file):
+            for index, (labels, query, title) in enumerate(session):
+                if "UNKNOWN" not in labels and "TEST" not in labels:
+                    features = generate_feature(session, index)
+                    f.write("{0} {1}\n".format("".join(labels), " ".join(features)))
+
+                    # for label in labels:
+                    #     f.write("{0} {1}\n".format(label, " ".join(features)))
 
 @run_time
 def read_test(file_name):
