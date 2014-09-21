@@ -59,7 +59,7 @@ class Maxent():
         sort_list = sorted(result_list, key=lambda x: x[1], reverse=True)
 
         if sort_list[0][1] - sort_list[1][1] <= 0.15 and sort_list[0][0] + sort_list[1][0] in double:
-            return ((sort_list[0][0],sort_list[1][0]), max(sort_list[0][1],sort_list[1][1]))
+            return ((sort_list[0][0],sort_list[1][0]), min(sort_list[0][1],sort_list[1][1]))
         else:
             return sort_list[0]
 
@@ -85,15 +85,18 @@ class Maxent():
             predict_results.append(self.session_predict(query_list,session))
 
         logging.info("predict:{0}\nsessions:{1}\n".format(query_list,predict_results))
-        result = sorted(predict_results,key=lambda x:x[1],reverse=True)
-        predict_result = result[0][0]
+        
+        # result = sorted(predict_results.items(),lambda x,y:cmp(x[1],y[1]),reverse=True)
+        # predict_result = result[0][0]
 
 
-        # dict = self.test_dict = collections.defaultdict(int)
-        # for predict_result in predict_results:
-        #     dict[" ".join(predict_result[0])] += 1
-        # dict = sorted(dict.iteritems(),key=lambda x:dict[x],reverse=True)
-        # predict_result = dict[0][0].split(" ")
+        dict = self.test_dict = collections.defaultdict(int)
+        for predict_result in predict_results:
+            dict["|".join(predict_result[0])] += 1
+        dict = sorted(dict.items(),lambda x,y:cmp(x[1],y[1]),reverse=True)
+        predict_result = dict[0][0].split("|")
+        logging.info("sorted:{0}\nsessions:{1}\n".format(query_list,dict))
+
 
         logging.debug("predict_result:{0}".format(predict_result))
 
