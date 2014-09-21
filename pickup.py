@@ -63,7 +63,7 @@ def generate_feature(session, i):
     for word in title:
         features["title" + word] = 1
     for index in range(len(title)):
-        features.append("title" + "".join(title[index:index + 2]))
+        features["title" + "".join(title[index:index + 2])] = 1
     # print features
     return features
 
