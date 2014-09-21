@@ -9,14 +9,12 @@ import cPickle
 import marshal
 
 
-
-
 class Maxent():
     def __init__(self):
 
         self.m = cmaxent.MaxentModel()
         self.test_dict = collections.defaultdict(list)
-        self.labels = ("ZIPCODE","NOVEL", "GAME", "TRAVEL", "VIDEO", "LOTTERY", "OTHER")
+        self.labels = ("ZIPCODE", "NOVEL", "GAME", "TRAVEL", "VIDEO", "LOTTERY", "OTHER")
 
     @pickup.run_time
     def train(self, feature_file):
@@ -34,58 +32,57 @@ class Maxent():
 
     def predict(self, feature):
         double = ("GAMELOTTERY",
-                    "GAMENOVEL",
-                    "GAMETRAVEL",
-                    "GAMEVIDEO",
-                    "NOVELGAME",
-                    "NOVELVIDEO",
-                    "VIDEOGAME",
-                    "VIDEOLOTTERY",
-                    "VIDEONOVEL",
-                    "VIDEOTRAVEL",
-                    "ZIPCODETRAVEL",
-                    "LOTTERYGAME",
-                    "NOVELGAME",
-                    "TRAVELGAME",
-                    "VIDEOGAME",
-                    "GAMENOVEL",
-                    "VIDEONOVEL",
-                    "GAMEVIDEO",
-                    "LOTTERYVIDEO",
-                    "NOVELVIDEO",
-                    "TRAVELVIDEO",
-                    "TRAVELZIPCODE",)
+                  "GAMENOVEL",
+                  "GAMETRAVEL",
+                  "GAMEVIDEO",
+                  "NOVELGAME",
+                  "NOVELVIDEO",
+                  "VIDEOGAME",
+                  "VIDEOLOTTERY",
+                  "VIDEONOVEL",
+                  "VIDEOTRAVEL",
+                  "ZIPCODETRAVEL",
+                  "LOTTERYGAME",
+                  "NOVELGAME",
+                  "TRAVELGAME",
+                  "VIDEOGAME",
+                  "GAMENOVEL",
+                  "VIDEONOVEL",
+                  "GAMEVIDEO",
+                  "LOTTERYVIDEO",
+                  "NOVELVIDEO",
+                  "TRAVELVIDEO",
+                  "TRAVELZIPCODE",)
         result_list = [((label,), self.m.eval(feature, label)) for label in self.labels]
         sort_list = sorted(result_list, key=lambda x: x[1], reverse=True)
 
         if sort_list[0][1] - sort_list[1][1] <= 0.15 and sort_list[0][0] + sort_list[1][0] in double:
-            return ((sort_list[0][0],sort_list[1][0]), min(sort_list[0][1],sort_list[1][1]))
+            return ((sort_list[0][0], sort_list[1][0]), min(sort_list[0][1], sort_list[1][1]))
         else:
             return sort_list[0]
 
 
-    def session_predict(self,query_list,session):
+    def session_predict(self, query_list, session):
         predict_result = []
         for index, (labels, query, title) in enumerate(session):
             if query == query_list:
                 features = pickup.generate_feature(session, index)
                 predict_result = self.predict(features)
             if "UNKNOWN" not in labels and "TEST" not in labels:
-                predict_result = (labels,1.0)
-
+                predict_result = (labels, 1.0)
 
         return predict_result
 
 
-    def test(self,query_list,sessions):
-        logging.debug("test:{0}\nsessions:{1}\n".format(query_list,sessions))
+    def test(self, query_list, sessions):
+        logging.debug("test:{0}\nsessions:{1}\n".format(query_list, sessions))
 
         predict_results = []
         for session in sessions:
-            predict_results.append(self.session_predict(query_list,session))
+            predict_results.append(self.session_predict(query_list, session))
 
-        logging.info("predict:{0}\nsessions:{1}\n".format(query_list,predict_results))
-        
+        logging.info("predict:{0}\nsessions:{1}\n".format(query_list, predict_results))
+
         # result = sorted(predict_results.items(),lambda x,y:cmp(x[1],y[1]),reverse=True)
         # predict_result = result[0][0]
 
@@ -93,10 +90,9 @@ class Maxent():
         dict = self.test_dict = collections.defaultdict(int)
         for predict_result in predict_results:
             dict["|".join(predict_result[0])] += 1
-        dict = sorted(dict.items(),lambda x,y:cmp(x[1],y[1]),reverse=True)
+        dict = sorted(dict.items(), lambda x, y: cmp(x[1], y[1]), reverse=True)
         predict_result = dict[0][0].split("|")
-        logging.info("sorted:{0}\nsessions:{1}\n".format(query_list,dict))
-
+        logging.info("sorted:{0}\nsessions:{1}\n".format(query_list, dict))
 
         logging.debug("predict_result:{0}".format(predict_result))
 
