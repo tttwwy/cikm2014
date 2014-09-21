@@ -139,7 +139,7 @@ def generate_feature_file(base_file, feature_file):
             for index, (labels, query, title) in enumerate(session):
                 if "UNKNOWN" not in labels and "TEST" not in labels:
                     features = generate_feature(session, index)
-                    f.write("{0} {1}\n".format("".join(labels), " ".join(features)))
+                    f.write("{0} {1}\n".format("|".join(labels), " ".join(features)))
 
                     # for label in labels:
                     #     f.write("{0} {1}\n".format(label, " ".join(features)))
