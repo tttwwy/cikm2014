@@ -12,7 +12,6 @@ import nltk
 class Maxent():
     def __init__(self):
         nltk.config_megam('/home/wangzhe/tool/ml/MEGAM/megam-64.opt')
-        self.m = nltk.maxent.MaxentClassifier()
 
     @pickup.run_time
     def train(self, feature_file):
@@ -26,7 +25,7 @@ class Maxent():
                     context_dict[item] = 1
                 label = line[0]
                 features.append((context_dict,label))
-        self.m.train(features,algorithm='MEGAM',trace=0,gaussian_prior_sigma=4.0)
+        self.m = nltk.maxent.MaxentClassifier.train(features,algorithm='MEGAM',trace=0,gaussian_prior_sigma=4.0)
 
     def save(self,model_name):
         with open(model_name,'w') as f:
