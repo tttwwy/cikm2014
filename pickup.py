@@ -132,6 +132,15 @@ def generate_feature(session, i):
     return features
 
 
+temp = ("ZIPCODE", "NOVEL", "GAME", "TRAVEL", "VIDEO", "LOTTERY", "OTHER",
+        "GAME|LOTTERY",
+"GAME|NOVEL",
+"GAME|TRAVEL",
+"GAME|VIDEO",
+"NOVEL|VIDEO",
+"VIDEO|LOTTERY",
+"VIDEO|TRAVEL",
+"ZIPCODE|TRAVEL")
 @run_time
 def generate_feature_file(base_file, feature_file):
     with open(feature_file, "w") as f:
@@ -139,7 +148,10 @@ def generate_feature_file(base_file, feature_file):
             for index, (labels, query, title) in enumerate(session):
                 if "UNKNOWN" not in labels and "TEST" not in labels:
                     features = generate_feature(session, index)
-                    f.write("{0} {1}\n".format("|".join(labels), " ".join(features)))
+                    label_str = "|".join(labels)
+                    if label_str not in temp:
+                        label_str = "|".join(reversed(labels))
+                    f.write("{0} {1}\n".format(label_str, " ".join(features)))
 
                     # for label in labels:
                     #     f.write("{0} {1}\n".format(label, " ".join(features)))

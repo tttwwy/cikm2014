@@ -15,15 +15,11 @@ class Maxent():
         self.m = cmaxent.MaxentModel()
         self.test_dict = collections.defaultdict(list)
         self.labels = ("ZIPCODE", "NOVEL", "GAME", "TRAVEL", "VIDEO", "LOTTERY", "OTHER",
-        "GAME|LOTTERY",
 "GAME|NOVEL",
 "GAME|TRAVEL",
 "GAME|VIDEO",
-"NOVEL|GAME",
 "NOVEL|VIDEO",
-"VIDEO|GAME",
 "VIDEO|LOTTERY",
-"VIDEO|NOVEL",
 "VIDEO|TRAVEL",
 "ZIPCODE|TRAVEL")
 
@@ -42,28 +38,7 @@ class Maxent():
         self.m.save("data/model.txt")
 
     def predict(self, feature):
-        # double = ("GAMELOTTERY",
-        #           "GAMENOVEL",
-        #           "GAMETRAVEL",
-        #           "GAMEVIDEO",
-        #           "NOVELGAME",
-        #           "NOVELVIDEO",
-        #           "VIDEOGAME",
-        #           "VIDEOLOTTERY",
-        #           "VIDEONOVEL",
-        #           "VIDEOTRAVEL",
-        #           "ZIPCODETRAVEL",
-        #           "LOTTERYGAME",
-        #           "NOVELGAME",
-        #           "TRAVELGAME",
-        #           "VIDEOGAME",
-        #           "GAMENOVEL",
-        #           "VIDEONOVEL",
-        #           "GAMEVIDEO",
-        #           "LOTTERYVIDEO",
-        #           "NOVELVIDEO",
-        #           "TRAVELVIDEO",
-        #           "TRAVELZIPCODE",)
+
         result_list = [(label.split("|"), self.m.eval(feature, label)) for label in self.labels]
         sort_list = sorted(result_list, key=lambda x: x[1], reverse=True)
         # sort_list[0][0].split("|")
