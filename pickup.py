@@ -59,9 +59,9 @@ def generate_feature(session, i):
     for word in query:
         features.append(word)
     for index in range(len(query)):
-        features.append("title"+ "".join(query[index:index + 2]))
+        features.append( "".join(query[index:index + 2]))
     for word in title:
-        features.append(word)
+        features.append("title"+word)
     for index in range(len(title)):
         features.append("title" + "".join(title[index:index + 2]))
     # print features
