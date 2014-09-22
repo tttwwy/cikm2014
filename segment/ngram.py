@@ -7,7 +7,7 @@ import pickle
 import sys
 import logging
 reload(sys)
-sys.setdefaultencoding("utf-8")
+sys.setdefaultencoding('utf-8')
 logging.basicConfig(level=logging.INFO,
                     format='%(message)s',
                     datefmt='%m-%d %H:%M:%S',
@@ -25,22 +25,27 @@ class NGram():
         self.frq_right = collections.defaultdict(self.dd)
         self.frq_total = collections.defaultdict(int)
 
-    def save(self,model_name):
+        self.inner = collections.defaultdict(int)
+        self.ent = collections.defaultdict(int)
+        self.dicts = collections.defaultdict(int)
 
-        with open(model_name + "1",'w') as f:
-            pickle.dump(self.frq,f)
-        with open(model_name + "2",'w') as f:
-            pickle.dump(self.frq_left,f)
-        with open(model_name + "3",'w') as f:
-            pickle.dump(self.frq_right,f)
+    def save(self,model_name,encoding='utf-8'):
+        with open(model_name,'w') as f:
+            for key,value in self.frq.items():
+                f.write("{0}\t{1}\t{2}\t{3}\n".format(key,value,self.inner[key],self.ent[key]))
 
-    def load(self,model_name):
-        with open(model_name + "1",'r') as f:
-            self.frq = pickle.load(f)
-        with open(model_name + "2",'r') as f:
-            self.frq_left = pickle.load(f)
-        with open(model_name + "3",'r') as f:
-            self.frq_right = pickle.load(f)
+
+    def load(self,model_name,encoding='utf-8'):
+        with open(model_name,'r') as f:
+            self.frq = collections.defaultdict(int)
+            self.inner = collections.defaultdict(int)
+            self.ent = collections.defaultdict(int)
+
+            for line in f:
+                key,value,inner,ent = line.decode(encoding).strip().split("\t")
+                self.frq[key] = value
+                self.inner[key] = inner
+                self.ent[key] = ent
 
     def count(self,sentence):
         for length in range(self.window):
@@ -52,7 +57,6 @@ class NGram():
                     self.frq_total[len(cur_word)] += 1
                     left_word = sentence[index - self.edge_window:index]
                     right_word = sentence[index + length + 1:index + length + self.edge_window + 1]
-                    # print sentence,cur_word,left_word,right_word
 
                     if left_word:
                         self.frq_left[cur_word][left_word] += 1
@@ -70,7 +74,7 @@ class NGram():
             return 0
 
 
-    def cal_edge(self,word):
+    def cal_ent(self,word):
         try:
             left_frq = sum(self.frq_left[word].values())
             right_frq = sum(self.frq_right[word].values())
@@ -85,24 +89,99 @@ class NGram():
     def splits(self,text):
         return [(text[:i+1], text[i+1:]) for i in range(min(len(text), self.window) -1 )]
 
-    def train(self,file_name):
+    def train(self,file_name,frq_min=10):
         with open(file_name,'r') as f:
             for index,line in enumerate(f):
                 line = line.strip("\n").decode('utf-8')
                 if line:
                     self.count(line)
 
-    def get_dicts(self,file_name,frq_min=10,inner_min=1,ent_min=1.9):
         for word,value in self.frq.items():
-            if value > frq_min:
-                inner = self.cal_inner(word)
-                ent = self.cal_edge(word)
-                if inner >= inner_min and ent >=  ent_min:
-                    logging.info("{0} {1} {2} {3} {4}".format(word,value,inner,left_edge,right_edge))
+            if value >= frq_min:
+                self.inner[word] = self.cal_inner(word)
+                self.ent[word] = self.cal_ent(word)
+
+
+    def generate_dicts(self,file_name,frq_min=10,inner_min=1,ent_min=1.9,encoding='utf-8'):
+        with open(file_name,'w') as f:
+            for word,value in self.frq.items():
+                if value >= frq_min:
+                    inner = self.inner[word]
+                    ent = self.ent[word]
+                    if inner >= inner_min and ent >=  ent_min:
+                        self.dicts[word] = value
+                        f.write("{0}\t{1}\n".format(word,value))
+
+
+    # def generate_gram2(self,file_read,file_write,encoding='utf-8'):
+    #     gram2 = collections.defaultdict(self.dd)
+    #     def get_gram2(sentence):
+    #         for left in range(len(sentence)):
+    #             for right in range(left + self.window,left,-1):
+    #                 word1 = sentence[left:right]
+    #                 if word1 > 0:
+    #                     for right2 in  range(right,right + self.window,1)
+    #
+
+
+class Segment():
+    def __init__(self):
+        self.dicts = collections.defaultdict(int)
+        self.window = 5
+    def read_dict(self,dict_name,encoding = 'utf-8'):
+        with open(dict_name,'r') as f:
+            for line in f:
+                line = line.strip().decode(encoding)
+                if line:
+                    word,value = line.split("\t")
+                    self.dicts[word] = value
+
+
+    def word_segment(self,sentence):
+        sentence = sentence.decode('utf-8')
+
+        # for right in range(len(sentence),0,-1):
+        words = []
+        right = len(sentence)
+        temp = ""
+        while right > 0:
+            matched = False
+            for left in range(0 if right - self.window < 0 else right - self.window,right-1,1):
+                word = sentence[left:right]
+                if self.dicts[word] > 0:
+                    if len(temp) > 0:
+                        words.insert(0,temp)
+                        temp = ""
+                    words.insert(0,word)
+                    right = left
+                    matched = True
+                    break
+
+            if not matched:
+                temp = sentence[right-1] + temp
+                right -= 1
+
+        if len(temp) > 0:
+            words.insert(0,temp)
+
+        for word in words:
+            print word
+        return words
+
+
+
 if __name__ == '__main__':
 
     ngram = NGram()
-    print ngram.splits("ab")
+
+    # 根据训练预料，读取特征
     ngram.train("C:\Users\Administrator\Desktop\\sougou.txt")
 
-    ngram.get_dicts()
+    # 根据指定参数，生成词典
+    ngram.generate_dicts("dict.txt")
+
+    segment = Segment()
+
+    # 读取词典
+    segment.read_dict("dict.txt")
+    segment.word_segment("五子棋大师下载")
