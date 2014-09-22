@@ -177,8 +177,8 @@ if __name__ == '__main__':
     # 根据训练预料，读取特征,训练语料为一行一行的query
     ngram.train("C:\Users\Administrator\Desktop\\sougou.txt")
 
-    # 根据指定参数，生成词典
-    ngram.generate_dicts("dict.txt")
+    # 根据指定参数，生成词典,frq_min为最小词频,inner_min为词语内部结合紧密程度，一般应当大于1，ent_min为左右两侧自由程度，至少应当大于1
+    ngram.generate_dicts("dict.txt",frq_min=10,inner_min=1,ent_min=1.9,encoding='utf-8')
 
     segment = Segment()
 
