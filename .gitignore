@@ -94,4 +94,5 @@ $RECYCLE.BIN/
 *.msm
 *.msp
 *.txt
+*.txt*
 data/*
