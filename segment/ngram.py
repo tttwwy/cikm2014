@@ -174,7 +174,7 @@ if __name__ == '__main__':
 
     ngram = NGram()
 
-    # 根据训练预料，读取特征
+    # 根据训练预料，读取特征,训练语料为一行一行的query
     ngram.train("C:\Users\Administrator\Desktop\\sougou.txt")
 
     # 根据指定参数，生成词典
