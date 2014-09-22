@@ -83,10 +83,6 @@ class Maxent():
 
         logging.info("predict:{0}\nsessions:{1}\n".format(query_list, predict_results))
 
-        # result = sorted(predict_results.items(),lambda x,y:cmp(x[1],y[1]),reverse=True)
-        # predict_result = result[0][0]
-
-
         dict = self.test_dict = collections.defaultdict(int)
         for predict_result in predict_results:
             dict["|".join(predict_result[0])] += 1
