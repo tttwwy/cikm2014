@@ -34,7 +34,7 @@ class Maxent():
                 self.m.add_event(context, label)
 
         self.m.end_add_event()
-        self.m.train(150, 'lbfgs', 4, 1E-05)
+        self.m.train(150, 'lbfgs', 2.0, 1E-05)
 
     def save(self,model_name):
         self.m.save(model_name)
