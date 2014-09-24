@@ -290,7 +290,7 @@ if __name__ == '__main__':
 
     segment = WordSegment('utf-8')
     segment.train("data/msr_train.txt")
-    # segment.save("data/model.txt")
+    segment.save("data/model.txt")
     # segment.load("data/model.txt")
     segment.generate_dicts(frq_min=5,inner_min=0.7,ent_min=1)
     # segment.save_dict("data/dict.txt")
@@ -305,7 +305,7 @@ if __name__ == '__main__':
     b = 0.1
     c = 1 - a - b
     with open("data/msr.txt") as f:
-        lines = f.readall()
+        lines = f.readlines()
         right = 0
         false = 0
         for line in lines:
