@@ -36,8 +36,18 @@ class Base():
             return back
 
         return new_func
-
+    
+    @run_time
     def train(self, feature_file,*argv):
+        pass
+
+    def save(self,model_name):
+        pass
+
+    def load(self,model_name):
+        pass
+
+    def model_predict(self,label,feature):
         pass
 
     def read_train_file(self, file_name):
