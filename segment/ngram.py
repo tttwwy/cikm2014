@@ -6,6 +6,7 @@ import math
 import pickle
 import sys
 import logging
+
 reload(sys)
 sys.setdefaultencoding('utf-8')
 logging.basicConfig(level=logging.INFO,
@@ -13,6 +14,7 @@ logging.basicConfig(level=logging.INFO,
                     datefmt='%m-%d %H:%M:%S',
                     filename='ngram.log',
                     filemode='w')
+
 class NGram():
 
     def dd(self):
@@ -113,21 +115,14 @@ class NGram():
                         f.write("{0}\t{1}\n".format(word,value))
 
 
-    # def generate_gram2(self,file_read,file_write,encoding='utf-8'):
-    #     gram2 = collections.defaultdict(self.dd)
-    #     def get_gram2(sentence):
-    #         for left in range(len(sentence)):
-    #             for right in range(left + self.window,left,-1):
-    #                 word1 = sentence[left:right]
-    #                 if word1 > 0:
-    #                     for right2 in  range(right,right + self.window,1)
-    #
+
 
 
 class Segment():
     def __init__(self):
         self.dicts = collections.defaultdict(int)
         self.window = 5
+
     def read_dict(self,dict_name,encoding = 'utf-8'):
         with open(dict_name,'r') as f:
             for line in f:
@@ -137,7 +132,7 @@ class Segment():
                     self.dicts[word] = value
 
 
-    def word_segment(self,sentence):
+    def rmm_segment(self,sentence):
         sentence = sentence.decode('utf-8')
 
         # for right in range(len(sentence),0,-1):
@@ -163,23 +158,67 @@ class Segment():
 
         if len(temp) > 0:
             words.insert(0,temp)
+        #
+        result = " ".join(words)
+        # for word in words:
+        #     print word
+        return result
 
-        for word in words:
-            print word
-        return words
+
+def generate_gram2(file_read,file_write,encoding='utf-8'):
+    gram1 = collections.defaultdict(int)
+    gram2 = collections.defaultdict(lambda :collections.defaultdict(int))
+    segment.read_dict("dict.txt")
+
+    with open(file_read,'r') as f_read:
+        for line in f_read:
+            line = line.strip().decode(encoding)
+            if line:
+                segment_list = segment.rmm_segment(line)
+                for index in range(0,len(segment_list)-1):
+                    if index == 0:
+                        word1 = "<S>"
+                    else:
+                        word1 = segment_list[index-1]
+                    word2 = segment_list[index]
+                    gram1[word1] += 1
+                    gram2[word1][word2] += 1
+
+    with open(file_write,'w') as f:
+        for word in gram2.keys():
+            for word2 in gram2[word].keys():
+                f.write("{0} {1}\t{2}\n".format(word,word2,gram2[word][word2]))
+
+
 
 
 
 if __name__ == '__main__':
 
-    ngram = NGram()
+    # ngram = NGram()
+    # ngram.train("C:\Users\Administrator\Desktop\sougou.txt")
 
     # 根据指定参数，生成词典,frq_min为最小词频,inner_min为词语内部结合紧密程度，一般应当大于1，ent_min为左右两侧自由程度，至少应当大于1
-    ngram.generate_dicts("dict.txt",frq_min=10,inner_min=1,ent_min=1.9,encoding='utf-8')
-
-
+    # ngram.generate_dicts("dict.txt",frq_min=6,inner_min=1,ent_min=1.2,encoding='utf-8')
+    #
+    #
     segment = Segment()
 
     # 读取词典
     segment.read_dict("dict.txt")
-    segment.word_segment("王震在新疆如何杀人")
+    # generate_gram2("C:\Users\Administrator\Desktop\sougou.txt","gram2.txt")
+    myseg = DNASegment()
+    myseg.initial_dict("dict.txt","gram2.txt")
+    with open('C:\Users\Administrator\Desktop\sougou.txt') as f:
+        with open("result.txt",'w') as f_write:
+            for line in f:
+                line = line.strip()
+                if line:
+                    rmm = segment.rmm_segment(line)
+                    seg = myseg.mp_seg(line)
+                    f_write.write("{0}\n{1}\n{2}\n".format(line,rmm,seg))
+
+    sequence = "学业水平测试历史知识点"
+    print  myseg.mp_seg(sequence)
+
+    print segment.rmm_segment(sequence)
