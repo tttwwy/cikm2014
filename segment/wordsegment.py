@@ -300,29 +300,28 @@ if __name__ == '__main__':
     # generate_gram2("C:\Users\Administrator\Desktop\sougou.txt","gram2.txt")
     # for key,value in segment.dicts.items():
     #     print key,value
-    k = 1
-    a = 0.1
-    b = 0.1
-    c = 1 - a - b
     with open("data/msr.txt") as f:
         lines = f.readlines()
-        right = 0
-        false = 0
-        for line in lines:
-            line = line.strip()
-            if line:
-                line = line.decode('utf-8')
-                standard = line.split(" ")
-                test = list("".join(standard))
-                test = segment.mp(test,k,a,b,c)
-                all = set(standard) & set(test)
-                right += len(all)
-                false += len(standard)
-                print " ".join(standard)
-                print " ".join(test)
-                print right,false
-
-
+        for k in range(1,5,0.05):
+            for a in range(0.1,0.7,0.05):
+                for b in range(0.1,min(0.8,1 - a -0.1),0.05):
+                    try:
+                        c = 1 - a - b
+                        right = 0
+                        false = 0
+                        for line in lines:
+                            line = line.strip()
+                            if line:
+                                line = line.decode('utf-8')
+                                standard = line.split(" ")
+                                test = list("".join(standard))
+                                test = segment.mp(test,k,a,b,c)
+                                all = set(standard) & set(test)
+                                right += len(all)
+                                false += len(standard)
+                        print k,a,b,c,right,false,float(right)/right+false
+                    except Exception:
+                        pass
 
     # segment.rmm_segment(sentence)
     # with open("C:\Users\Administrator\Desktop\sougou.txt",'r') as f:
