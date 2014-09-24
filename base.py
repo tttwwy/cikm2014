@@ -4,18 +4,17 @@ import sys
 import collections
 import time
 import logging
+if sys.platform == "win32":
+    log_level = logging.DEBUG
+else:
+    log_level = logging.INFO
 
+logging.basicConfig(level=log_level,
+                             format='%(asctime)s %(message)s',
+                             datefmt='%m-%d %H:%M:%S', )
 
 class Base():
     def __init__(self):
-        Base.log = logging
-        if sys.platform == "win32":
-            log_level = logging.DEBUG
-        else:
-            log_level = logging.INFO
-        Base.log.basicConfig(level=log_level,
-                             format='%(asctime)s %(message)s',
-                             datefmt='%m-%d %H:%M:%S', )
         self.lables = ("ZIPCODE", "NOVEL", "GAME", "TRAVEL", "VIDEO", "LOTTERY", "OTHER",
                        "GAME|LOTTERY",
                        "GAME|NOVEL",
@@ -26,8 +25,6 @@ class Base():
                        "VIDEO|TRAVEL",
                        "ZIPCODE|TRAVEL")
 
-
-    @staticmethod
     def run_time(func):
         def new_func(*args, **args2):
             start = time.clock()

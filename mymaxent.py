@@ -3,7 +3,6 @@ import collections
 import maxent.pymaxent as pymaxent
 import maxent.cmaxent as cmaxent
 import base
-import logging
 
 
 
@@ -12,7 +11,7 @@ class Maxent(base.Base):
         self.m = cmaxent.MaxentModel()
         self.test_dict = collections.defaultdict(list)
 
-    @base.run_time
+    @base.Base.run_time
     def train(self, feature_file,*argv):
         self.m.begin_add_event()
         with open(feature_file, "r") as f:
