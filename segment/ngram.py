@@ -200,25 +200,12 @@ if __name__ == '__main__':
 
     # 根据指定参数，生成词典,frq_min为最小词频,inner_min为词语内部结合紧密程度，一般应当大于1，ent_min为左右两侧自由程度，至少应当大于1
     # ngram.generate_dicts("dict.txt",frq_min=6,inner_min=1,ent_min=1.2,encoding='utf-8')
-    #
-    #
     segment = Segment()
 
     # 读取词典
     segment.read_dict("dict.txt")
     # generate_gram2("C:\Users\Administrator\Desktop\sougou.txt","gram2.txt")
-    myseg = DNASegment()
-    myseg.initial_dict("dict.txt","gram2.txt")
-    with open('C:\Users\Administrator\Desktop\sougou.txt') as f:
-        with open("result.txt",'w') as f_write:
-            for line in f:
-                line = line.strip()
-                if line:
-                    rmm = segment.rmm_segment(line)
-                    seg = myseg.mp_seg(line)
-                    f_write.write("{0}\n{1}\n{2}\n".format(line,rmm,seg))
 
     sequence = "学业水平测试历史知识点"
-    print  myseg.mp_seg(sequence)
 
     print segment.rmm_segment(sequence)
