@@ -289,10 +289,10 @@ if __name__ == '__main__':
     # ngram.generate_dicts("dict.txt",frq_min=6,inner_min=1,ent_min=1.9,encoding='utf-8')
 
     segment = WordSegment('utf-8')
-    segment.train("data/msr_train.txt")
-    segment.save("data/model.txt")
-    # segment.load("data/model.txt")
-    segment.generate_dicts(frq_min=5,inner_min=0.7,ent_min=1)
+    # segment.train("data/msr_train.txt")
+    # segment.save("data/model.txt")
+    segment.load("data/model.txt")
+    # segment.generate_dicts(frq_min=5,inner_min=0.7,ent_min=1)
     # segment.save_dict("data/dict.txt")
 
     # 读取词典
@@ -314,7 +314,7 @@ if __name__ == '__main__':
                 line = line.decode('utf-8')
                 standard = line.split(" ")
                 test = list("".join(standard))
-                test = segment.mp(k,a,b,c,test)
+                test = segment.mp(test,k,a,b,c)
                 all = set(standard) & set(test)
                 right += len(all)
                 false += len(standard)
