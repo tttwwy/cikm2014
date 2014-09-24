@@ -302,10 +302,12 @@ if __name__ == '__main__':
     #     print key,value
     with open("data/msr.txt") as f:
         lines = f.readlines()
-        for k in range(1,5,0.05):
-            for a in range(0.1,0.7,0.05):
-                for b in range(0.1,min(0.8,1 - a -0.1),0.05):
+        for k in range(1,10,1):
+            for a in range(100,700,50):
+                for b in range(100,min(800,1000 - a -100),50):
                     try:
+                        a = a*1.0/1000
+                        b = b*1.0/1000
                         c = 1 - a - b
                         right = 0
                         false = 0
