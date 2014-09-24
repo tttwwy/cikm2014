@@ -25,7 +25,7 @@ class Base():
                        "VIDEO|TRAVEL",
                        "ZIPCODE|TRAVEL")
     segment = wordsegment.WordSegment()
-    segment.read_dict("segment/data/dict.txt")
+    # segment.read_dict("segment/data/dict.txt")
 
     def word_segment(self,sentence):
         return self.segment.rmm_segment(sentence)
