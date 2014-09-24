@@ -4,6 +4,7 @@ import sys
 import collections
 import time
 import logging
+from segment import wordsegment
 if sys.platform == "win32":
     log_level = logging.DEBUG
 else:
@@ -14,8 +15,7 @@ logging.basicConfig(level=log_level,
                              datefmt='%m-%d %H:%M:%S', )
 
 class Base():
-    def __init__(self):
-        self.lables = ("ZIPCODE", "NOVEL", "GAME", "TRAVEL", "VIDEO", "LOTTERY", "OTHER",
+    lables = ("ZIPCODE", "NOVEL", "GAME", "TRAVEL", "VIDEO", "LOTTERY", "OTHER",
                        "GAME|LOTTERY",
                        "GAME|NOVEL",
                        "GAME|TRAVEL",
@@ -24,6 +24,11 @@ class Base():
                        "VIDEO|LOTTERY",
                        "VIDEO|TRAVEL",
                        "ZIPCODE|TRAVEL")
+    segment = wordsegment.WordSegment()
+    segment.read_dict("segment/data/dict.txt")
+
+    def word_segment(self,sentence):
+        return self.segment.rmm_segment(sentence)
 
     def run_time(func):
         def new_func(*args, **args2):
@@ -36,7 +41,7 @@ class Base():
             return back
 
         return new_func
-    
+
     @run_time
     def train(self, feature_file,*argv):
         pass
@@ -118,7 +123,7 @@ class Base():
             index = 0
             with open(result, "w") as f_write:
                 for line in f:
-                    logging.info("reading test:{0}".format(index))
+                    logging.debug("reading test:{0}".format(index))
 
                     query_list = line.strip().split(" ")
                     query_str = "".join(query_list)
@@ -191,16 +196,29 @@ class Base():
     def generate_feature(self, session, i):
         features = []
         labels, query, title = session[i]
+        query_segment = self.word_segment(query)
+        title_segment = self.word_segment(title)
+
+        for word in query_segment:
+            features.append(word)
+        for index in range(len(query_segment)):
+            features.append("".join(query_segment[index:index + 2]))
+
+        for word in title_segment:
+            features.append("title"+word)
+        for index in range(len(title_segment)):
+            features.append("title" + "".join(title_segment[index:index + 2]))
+
         for word in query:
             features.append(word)
         for index in range(len(query)):
             features.append("".join(query[index:index + 2]))
+
         for word in title:
             features.append("title" + word)
         for index in range(len(title)):
             features.append("title" + "".join(title[index:index + 2]))
-        # print features
-        return features
+        return list(set(features))
 
     def feature_predict(self, feature):
         result_list = [(label.split("|"), self.model_predict(label, feature)) for label in self.labels]
@@ -225,7 +243,7 @@ class Base():
         for session in sessions:
             predict_results.append(self.session_predict(query_list, session))
 
-        logging.info("predict:{0}\nsessions:{1}\n".format(query_list, predict_results))
+        logging.debug("predict:{0}\nsessions:{1}\n".format(query_list, predict_results))
 
         result = sorted(predict_results, key=lambda x: x[1], reverse=True)
         predict_result = result[0][0]

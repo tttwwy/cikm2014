@@ -8,6 +8,7 @@ import base
 
 class Maxent(base.Base):
     def __init__(self):
+
         self.m = cmaxent.MaxentModel()
         self.test_dict = collections.defaultdict(list)
 
