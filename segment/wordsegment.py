@@ -324,7 +324,7 @@ if __name__ == '__main__':
                                 all = set(standard) & set(test)
                                 right += len(all)
                                 false += len(standard)
-                        prc = right * 1.0 / right + false
+                        prc = right * 1.0 / (right + false)
                         logging.info("{0} {1} {2}".format(right,false,prc))
 
                     except Exception:
