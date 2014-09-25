@@ -12,7 +12,7 @@ sys.setdefaultencoding('utf-8')
 logging.basicConfig(level=logging.INFO,
                     format='%(message)s',
                     datefmt='%m-%d %H:%M:%S',
-                    filename='ngram.log',
+                    filename='ngram2.log',
                     filemode='w')
 
 class WordSegment():
@@ -162,14 +162,16 @@ class WordSegment():
         inner = float(self.inner[word])
         ent = float(self.ent[word])
         # print word,frq,inner,ent,
-        if frq <= 0 or ent <= 0.5 or inner <= 1:
+        if frq <= a or ent <= b or inner <= c:
             all_freq = sum([x for x in self.frq_total.values()])
             prob = -math.log(a*10./(all_freq*10**len(word)))
         else:
             frq /= self.frq_total[len(word)]
-            inner /= self.frq_total[len(word)]
-            ent /= self.frq_total[len(word)]
-            prob = -math.log(a * frq + b * inner + c * ent)
+            # inner /= self.frq_total[len(word)]
+            # ent /= self.frq_total[len(word)]
+            # prob = -math.log(a * frq + b * inner + c * ent)
+            prob = -math.log(frq)
+
         # print prob
         return prob
 
@@ -305,30 +307,31 @@ if __name__ == '__main__':
     with open("data/msr.txt") as f:
         lines = f.readlines()
         for k in range(1,10,2):
-            for a in range(100,700,100):
-                a = a*1.0/1000
-                for b in range(100,min(800,1000 - a -100),100):
-                    try:
-                        b = b*1.0/1000
-                        c = 1 - a - b
-                        right = 0
-                        false = 0
-                        logging.info("{0} {1} {2} {3}".format(k,a,b,c))
-                        for line in lines:
-                            line = line.strip()
-                            if line:
-                                line = line.decode('utf-8')
-                                standard = line.split(" ")
-                                test = list("".join(standard))
-                                test = segment.mp(test,k,a,b,c)
-                                all = set(standard) & set(test)
-                                right += len(all)
-                                false += len(standard)
-                        prc = right * 1.0 / (right + false) * 100
-                        logging.info("{0} {1} {2}".format(right,false,prc))
+            for a in range(5,100,10):
+                for b in range(2,30,2):
+                    b = b*1.0/10
+                    for c in range(2,30,2):
+                        try:
+                            c = c * 1.0/10
 
-                    except Exception:
-                        pass
+                            right = 0
+                            false = 0
+                            logging.info("{0} {1} {2} {3}".format(k,a,b,c))
+                            for line in lines:
+                                line = line.strip()
+                                if line:
+                                    line = line.decode('utf-8')
+                                    standard = line.split(" ")
+                                    test = list("".join(standard))
+                                    test = segment.mp(test,k,a,b,c)
+                                    all = set(standard) & set(test)
+                                    right += len(all)
+                                    false += len(standard)
+                            prc = right * 1.0 / (right + false) * 100
+                            logging.info("{0} {1} {2}".format(right,false,prc))
+
+                        except Exception:
+                            pass
 
     # segment.rmm_segment(sentence)
     # with open("C:\Users\Administrator\Desktop\sougou.txt",'r') as f:
