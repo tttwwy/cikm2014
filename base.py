@@ -11,6 +11,7 @@ if sys.platform == "win32":
 else:
     log_level = logging.INFO
 
+logging = logging
 logging.basicConfig(level=log_level,
                     format='%(asctime)s %(message)s',
                     datefmt='%m-%d %H:%M:%S', )
@@ -210,32 +211,33 @@ class Base():
     def model_predict(self, label, feature):
         pass
 
+
     def generate_feature(self, session, i):
-        features = []
-        labels, query, title = session[i]
-        query_segment = self.word_segment(query)
-        title_segment = self.word_segment(title)
 
-        for word in query_segment:
-            features.append(word)
-        for index in range(len(query_segment)):
-            features.append("".join(query_segment[index:index + 2]))
+        features = set()
+        for labels, query, title in session:
+            query_segment = self.word_segment(query)
+            title_segment = self.word_segment(title)
+            for word in query_segment:
+                features.add(word)
+            for index in range(len(query_segment)):
+                features.add("".join(query_segment[index:index + 2]))
 
-        for word in title_segment:
-            features.append("title" + word)
-        for index in range(len(title_segment)):
-            features.append("title" + "".join(title_segment[index:index + 2]))
+            for word in title_segment:
+                features.add("title" + word)
+            for index in range(len(title_segment)):
+                features.add("title" + "".join(title_segment[index:index + 2]))
 
-        for word in query:
-            features.append(word)
-        for index in range(len(query)):
-            features.append("".join(query[index:index + 2]))
+            for word in query:
+                features.add(word)
+            for index in range(len(query)):
+                features.add("".join(query[index:index + 2]))
 
-        for word in title:
-            features.append("title" + word)
-        for index in range(len(title)):
-            features.append("title" + "".join(title[index:index + 2]))
-        return list(set(features))
+            for word in title:
+                features.add("title" + word)
+            for index in range(len(title)):
+                features.add("title" + "".join(title[index:index + 2]))
+        return list(features)
 
     def feature_predict(self, feature):
         result_list = [(label.split("|"), self.model_predict(label, feature)) for label in Base.lables]
