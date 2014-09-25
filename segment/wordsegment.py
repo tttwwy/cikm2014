@@ -291,7 +291,9 @@ if __name__ == '__main__':
     segment = WordSegment('utf-8')
     # segment.train("data/msr_train.txt")
     # segment.save("data/model.txt")
+    logging.info("load start")
     segment.load("data/model.txt")
+    logging.info("load end")
     # segment.generate_dicts(frq_min=5,inner_min=0.7,ent_min=1)
     # segment.save_dict("data/dict.txt")
 
@@ -302,15 +304,16 @@ if __name__ == '__main__':
     #     print key,value
     with open("data/msr.txt") as f:
         lines = f.readlines()
-        for k in range(1,10,1):
-            for a in range(100,700,50):
-                for b in range(100,min(800,1000 - a -100),50):
+        for k in range(1,10,2):
+            for a in range(100,700,100):
+                for b in range(100,min(800,1000 - a -100),100):
                     try:
                         a = a*1.0/1000
                         b = b*1.0/1000
                         c = 1 - a - b
                         right = 0
                         false = 0
+                        logging.info("{0} {1} {2} {3}".format(k,a,b,c))
                         for line in lines:
                             line = line.strip()
                             if line:
@@ -321,7 +324,8 @@ if __name__ == '__main__':
                                 all = set(standard) & set(test)
                                 right += len(all)
                                 false += len(standard)
-                        print k,a,b,c,right,false,float(right)/right+false
+                        logging.info("{0} {1} {2}".format(right,false,float(right)/right+false))
+
                     except Exception:
                         pass
 
