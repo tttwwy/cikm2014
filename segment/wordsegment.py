@@ -12,7 +12,7 @@ sys.setdefaultencoding('utf-8')
 logging.basicConfig(level=logging.INFO,
                     format='%(message)s',
                     datefmt='%m-%d %H:%M:%S',
-                    filename='ngram2.log',
+                    filename='ngram3.log',
                     filemode='w')
 
 class WordSegment():
@@ -216,7 +216,7 @@ class WordSegment():
             best_end_index = best_left
         return words
 
-    def rmm_segment(self,sentence,encoding=''):
+    def rmm_segment(self,sentence,a,b,c):
         # if encoding:
         #     sentence = sentence.decode(encoding)
         # for right in range(len(sentence),0,-1):
@@ -228,8 +228,11 @@ class WordSegment():
             for left in range(0 if right - self.window < 0 else right - self.window,right-1,1):
                 word = "".join(sentence[left:right])
                 # print left,right,word,self.dicts[word]
+                frq = float(self.frq[word])
+                inner = float(self.inner[word])
+                ent = float(self.ent[word])
 
-                if self.dicts[word] > 0:
+                if frq >= a and inner >= b and ent >= c:
                     if len(temp) > 0:
                         words.insert(0,temp)
                         temp = ""
@@ -306,32 +309,31 @@ if __name__ == '__main__':
     #     print key,value
     with open("data/msr.txt") as f:
         lines = f.readlines()
-        for k in range(1,10,2):
-            for a in range(5,100,10):
-                for b in range(2,30,2):
-                    b = b*1.0/10
-                    for c in range(2,30,2):
-                        try:
-                            c = c * 1.0/10
+        for a in range(5,100,10):
+            for b in range(2,30,2):
+                b = b*1.0/10
+                for c in range(2,30,2):
+                    try:
+                        c = c * 1.0/10
 
-                            right = 0
-                            false = 0
-                            logging.info("{0} {1} {2} {3}".format(k,a,b,c))
-                            for line in lines:
-                                line = line.strip()
-                                if line:
-                                    line = line.decode('utf-8')
-                                    standard = line.split(" ")
-                                    test = list("".join(standard))
-                                    test = segment.mp(test,k,a,b,c)
-                                    all = set(standard) & set(test)
-                                    right += len(all)
-                                    false += len(standard)
-                            prc = right * 1.0 / (right + false) * 100
-                            logging.info("{0} {1} {2}".format(right,false,prc))
+                        right = 0
+                        false = 0
+                        logging.info("{0} {1} {2}".format(a,b,c))
+                        for line in lines:
+                            line = line.strip()
+                            if line:
+                                line = line.decode('utf-8')
+                                standard = line.split(" ")
+                                test = list("".join(standard))
+                                test = segment.rmm_segment(test,a,b,c)
+                                all = set(standard) & set(test)
+                                right += len(all)
+                                false += len(standard)
+                        prc = right * 1.0 / (right + false) * 100
+                        logging.info("{0} {1} {2}".format(right,false,prc))
 
-                        except Exception:
-                            pass
+                    except Exception:
+                        pass
 
     # segment.rmm_segment(sentence)
     # with open("C:\Users\Administrator\Desktop\sougou.txt",'r') as f:
