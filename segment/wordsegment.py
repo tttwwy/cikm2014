@@ -216,7 +216,7 @@ class WordSegment():
             best_end_index = best_left
         return words
 
-    def rmm_segment(self,sentence,a,b,c):
+    def rmm_segment(self,sentence,a=25,b=2.6,c=2.8):
         # if encoding:
         #     sentence = sentence.decode(encoding)
         # for right in range(len(sentence),0,-1):

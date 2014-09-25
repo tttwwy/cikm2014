@@ -5,30 +5,29 @@ import collections
 import time
 import logging
 from segment import wordsegment
+
 if sys.platform == "win32":
     log_level = logging.DEBUG
 else:
     log_level = logging.INFO
 
 logging.basicConfig(level=log_level,
-                             format='%(asctime)s %(message)s',
-                             datefmt='%m-%d %H:%M:%S', )
+                    format='%(asctime)s %(message)s',
+                    datefmt='%m-%d %H:%M:%S', )
+
 
 class Base():
     lables = ("ZIPCODE", "NOVEL", "GAME", "TRAVEL", "VIDEO", "LOTTERY", "OTHER",
-                       "GAME|LOTTERY",
-                       "GAME|NOVEL",
-                       "GAME|TRAVEL",
-                       "GAME|VIDEO",
-                       "NOVEL|VIDEO",
-                       "VIDEO|LOTTERY",
-                       "VIDEO|TRAVEL",
-                       "ZIPCODE|TRAVEL")
+              "GAME|LOTTERY",
+              "GAME|NOVEL",
+              "GAME|TRAVEL",
+              "GAME|VIDEO",
+              "NOVEL|VIDEO",
+              "VIDEO|LOTTERY",
+              "VIDEO|TRAVEL",
+              "ZIPCODE|TRAVEL")
     segment = wordsegment.WordSegment()
     # segment.read_dict("segment/data/dict.txt")
-
-    def word_segment(self,sentence):
-        return self.segment.rmm_segment(sentence)
 
     def run_time(func):
         def new_func(*args, **args2):
@@ -42,17 +41,35 @@ class Base():
 
         return new_func
 
+
+    # noinspection PyArgumentList
     @run_time
-    def train(self, feature_file,*argv):
+    def word_segment(self, sentence):
+        return Base.segment.rmm_segment(sentence, 200, 2.6, 2.8)
+
+    @run_time
+    def train_dict(self, *args):
+        Base.segment.train(*args)
+
+    @run_time
+    def save_dict(self, *args):
+        Base.segment.save(*args)
+
+    @run_time
+    def load_dict(self, *args):
+        Base.segment.load(*args)
+
+    @run_time
+    def train(self, feature_file, *args):
         pass
 
-    def save(self,model_name):
+    def save(self, model_name):
         pass
 
-    def load(self,model_name):
+    def load(self, model_name):
         pass
 
-    def model_predict(self,label,feature):
+    def model_predict(self, label, feature):
         pass
 
     def read_train_file(self, file_name):
@@ -100,7 +117,7 @@ class Base():
     # if session:
     # file_write.write("\n")
     # type = 0
-    #                         session = []
+    # session = []
 
     @run_time
     def generate_full_test_file(self, test_file, test_submit_file, result):
@@ -147,7 +164,7 @@ class Base():
                     if "UNKNOWN" not in labels and "TEST" not in labels:
                         features = self.generate_feature(session, index)
                         label_str = "|".join(labels)
-                        if label_str not in self.labels:
+                        if label_str not in Base.labels:
                             label_str = "|".join(reversed(labels))
                         f.write("{0} {1}\n".format(label_str, " ".join(features)))
 
@@ -205,7 +222,7 @@ class Base():
             features.append("".join(query_segment[index:index + 2]))
 
         for word in title_segment:
-            features.append("title"+word)
+            features.append("title" + word)
         for index in range(len(title_segment)):
             features.append("title" + "".join(title_segment[index:index + 2]))
 

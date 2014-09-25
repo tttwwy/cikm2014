@@ -12,7 +12,7 @@ class Maxent(base.Base):
         self.m = cmaxent.MaxentModel()
         self.test_dict = collections.defaultdict(list)
 
-    def train(self, feature_file,*argv):
+    def train(self, feature_file,*args):
         self.m.begin_add_event()
         with open(feature_file, "r") as f:
             for line in f:
@@ -24,7 +24,7 @@ class Maxent(base.Base):
 
         self.m.end_add_event()
         # self.m.train(150, 'lbfgs', 2.0, 1E-05)
-        self.m.train(*argv)
+        self.m.train(*args)
 
     def save(self,model_name):
         self.m.save(model_name)
