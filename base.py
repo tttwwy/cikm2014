@@ -221,7 +221,7 @@ class Base():
         return list(set(features))
 
     def feature_predict(self, feature):
-        result_list = [(label.split("|"), self.model_predict(label, feature)) for label in self.labels]
+        result_list = [(label.split("|"), self.model_predict(label, feature)) for label in Base.lables]
         sort_list = sorted(result_list, key=lambda x: x[1], reverse=True)
         return sort_list[0]
 
