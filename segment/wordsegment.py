@@ -116,10 +116,8 @@ class WordSegment():
         with open(file_write_name,'w') as f_write:
             with open(file_name,'r') as f:
                 for index,line in enumerate(f):
-                    line = line.strip("\n")
-                    if self.encoding:
-                        line = line.decode(self.encoding)
-                    line = line.split()
+                    logging.info(index)
+                    line = line.strip("\n").split()
                     if len(line) == 1:
                         line = list(line[0])
                 frq,frq_left,frq_right = self.count(line)
