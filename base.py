@@ -87,7 +87,8 @@ class Base():
                     title = title.split(" ")
                     if "-" in title:
                         title = []
-                    session.append([labels, query, title])
+                    if (labels, query, title) not in session:
+                        session.append((labels, query, title))
                 else:
                     if session:
                         yield session
@@ -118,6 +119,32 @@ class Base():
     # file_write.write("\n")
     # type = 0
     # session = []
+    @run_time
+    def generate_full_train_file(self, train_file, save_file):
+        dict = {}
+        logging.info("read train file start")
+        for session in self.read_train_file(train_file):
+            for labels, query, title in session:
+                query_str = " ".join(query)
+                if query_str in dict:
+                    if session not in dict[query_str]:
+                        dict[query_str].append(session)
+                else:
+                    dict[query_str] = [session]
+        logging.info("read train file end")
+        logging.info("saving file start")
+        with open(save_file, 'w') as f_write:
+            for query_str in dict.keys():
+                str = "{0}\t{1}\t{2}\n".format("CLASS=SUBMIT",query_str, "-")
+
+                for session in dict[query_str]:
+                    for labels, query, title in session:
+                        label_str = "|".join(["CLASS=" + x for x in labels])
+                        str += "{0}\t{1}\t{2}\n".format(label_str, " ".join(query), " ".join(title))
+                    str += "\n"
+                f_write.write(str)
+        logging.info("saving file end")
+
 
     @run_time
     def generate_full_test_file(self, test_file, test_submit_file, result):
@@ -128,7 +155,8 @@ class Base():
                 if "TEST" in labels:
                     query_str = "".join(query)
                     if query_str in dict:
-                        if session != dict[query_str][-1]:
+                        if session not in dict[query_str]:
+                        # if session != dict[query_str][-1]:
                             dict[query_str].append(session)
                     else:
                         dict[query_str] = [session]
