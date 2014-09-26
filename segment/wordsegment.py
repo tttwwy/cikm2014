@@ -10,9 +10,9 @@ import logging
 reload(sys)
 sys.setdefaultencoding('utf-8')
 logging.basicConfig(level=logging.INFO,
-                    format='%(message)s',
+                    format='%(asctime)s %(message)s',
                     datefmt='%m-%d %H:%M:%S',
-                    filename='ngram3.log',
+                    filename='segment.log',
                     filemode='w')
 
 class WordSegment():
@@ -65,23 +65,27 @@ class WordSegment():
 
 
     def count(self,sentence):
+        frq = collections.defaultdict(int)
+        frq_left = collections.defaultdict(collections.defaultdict(int))
+        frq_right = collections.defaultdict(collections.defaultdict(int))
+
         for length in range(self.window):
             len_sentence = len(sentence)
             for index in range(len_sentence):
                 if index + length + 1 <= len_sentence:
                     cur_word = "".join(sentence[index:index + length + 1])
 
-                    self.frq[cur_word] += 1
-                    self.frq_total[len(cur_word)] += 1
+                    frq[cur_word] += 1
 
                     left_word = "".join(sentence[index - self.edge_window:index])
                     right_word = "".join(sentence[index + length + 1:index + length + self.edge_window + 1])
 
                     if left_word:
-                        self.frq_left[cur_word][left_word] += 1
+                        frq_left[cur_word][left_word] += 1
 
                     if right_word:
-                        self.frq_right[cur_word][right_word] += 1
+                        frq_right[cur_word][right_word] += 1
+        return frq,frq_left,frq_right
 
     def cal_inner(self,word):
         try:
@@ -108,26 +112,37 @@ class WordSegment():
     def splits(self,text):
         return [(text[:i+1], text[i+1:]) for i in range(min(len(text), self.window) -1 )]
 
-    def train(self,file_name,frq_min=5):
-        with open(file_name,'r') as f:
-            for index,line in enumerate(f):
-                line = line.strip("\n")
-                if self.encoding:
-                    line = line.decode(self.encoding)
-                line = line.split()
-                if len(line) == 1:
-                    line = list(line[0])
-                self.count(line)
+    def train(self,file_name,file_write_name,frq_min=5):
+        with open(file_write_name,'w') as f_write:
+            with open(file_name,'r') as f:
+                for index,line in enumerate(f):
+                    line = line.strip("\n")
+                    if self.encoding:
+                        line = line.decode(self.encoding)
+                    line = line.split()
+                    if len(line) == 1:
+                        line = list(line[0])
+                frq,frq_left,frq_right = self.count(line)
 
-        for word,value in self.frq.items():
-            # print word,value
-            if value >= frq_min:
-                inner = self.cal_inner(word)
-                ent = self.cal_ent(word)
-                self.inner[word] = inner
-                self.ent[word] = ent
-                self.inner_total[len(word)] += inner
-                self.ent_total[len(word)] += ent
+                for word in frq.keys():
+                    frq_str = " ".join(word,frq[word])
+                    left_str = "\t".join([" ".join(x,y) for x,y in frq_left[word].items()])
+                    right_str = "\t".join([" ".join(x,y) for x,y in frq_left[word].items()])
+
+                    f_write.write("{0}\t\t{1}\t\t{2}\n".format(frq_str,left_str,right_str))
+
+        # with open(file_write_name,'r') as f:
+        #
+        #
+        # for word,value in self.frq.items():
+        #     # print word,value
+        #     if value >= frq_min:
+        #         inner = self.cal_inner(word)
+        #         ent = self.cal_ent(word)
+        #         self.inner[word] = inner
+        #         self.ent[word] = ent
+        #         self.inner_total[len(word)] += inner
+        #         self.ent_total[len(word)] += ent
 
 
     def generate_dicts(self,frq_min=5,inner_min=0.6,ent_min=1):
@@ -293,12 +308,15 @@ if __name__ == '__main__':
     # 根据指定参数，生成词典,frq_min为最小词频,inner_min为词语内部结合紧密程度，一般应当大于1，ent_min为左右两侧自由程度，至少应当大于1
     # ngram.generate_dicts("dict.txt",frq_min=6,inner_min=1,ent_min=1.9,encoding='utf-8')
 
-    segment = WordSegment('utf-8')
-    # segment.train("data/msr_train.txt")
+    segment = WordSegment()
+    logging.info("train start")
+    segment.train("data/uniq_train.txt","data/uniq_train_new.txt")
+    logging.info("train end")
+
     # segment.save("data/model.txt")
-    logging.info("load start")
-    segment.load("data/model.txt")
-    logging.info("load end")
+    # logging.info("load start")
+    # segment.load("data/model.txt")
+    # logging.info("load end")
     # segment.generate_dicts(frq_min=5,inner_min=0.7,ent_min=1)
     # segment.save_dict("data/dict.txt")
 
@@ -307,33 +325,33 @@ if __name__ == '__main__':
     # generate_gram2("C:\Users\Administrator\Desktop\sougou.txt","gram2.txt")
     # for key,value in segment.dicts.items():
     #     print key,value
-    with open("data/msr.txt") as f:
-        lines = f.readlines()
-        for a in range(5,100,10):
-            for b in range(2,30,2):
-                b = b*1.0/10
-                for c in range(2,30,2):
-                    try:
-                        c = c * 1.0/10
-
-                        right = 0
-                        false = 0
-                        logging.info("{0} {1} {2}".format(a,b,c))
-                        for line in lines:
-                            line = line.strip()
-                            if line:
-                                line = line.decode('utf-8')
-                                standard = line.split(" ")
-                                test = list("".join(standard))
-                                test = segment.rmm_segment(test,a,b,c)
-                                all = set(standard) & set(test)
-                                right += len(all)
-                                false += len(standard)
-                        prc = right * 1.0 / (right + false) * 100
-                        logging.info("{0} {1} {2}".format(right,false,prc))
-
-                    except Exception:
-                        pass
+    # with open("data/msr.txt") as f:
+    #     lines = f.readlines()
+    #     for a in range(5,100,10):
+    #         for b in range(2,30,2):
+    #             b = b*1.0/10
+    #             for c in range(2,30,2):
+    #                 try:
+    #                     c = c * 1.0/10
+    #
+    #                     right = 0
+    #                     false = 0
+    #                     logging.info("{0} {1} {2}".format(a,b,c))
+    #                     for line in lines:
+    #                         line = line.strip()
+    #                         if line:
+    #                             line = line.decode('utf-8')
+    #                             standard = line.split(" ")
+    #                             test = list("".join(standard))
+    #                             test = segment.rmm_segment(test,a,b,c)
+    #                             all = set(standard) & set(test)
+    #                             right += len(all)
+    #                             false += len(standard)
+    #                     prc = right * 1.0 / (right + false) * 100
+    #                     logging.info("{0} {1} {2}".format(right,false,prc))
+    #
+    #                 except Exception:
+    #                     pass
 
     # segment.rmm_segment(sentence)
     # with open("C:\Users\Administrator\Desktop\sougou.txt",'r') as f:
