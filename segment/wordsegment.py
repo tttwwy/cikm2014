@@ -355,8 +355,7 @@ if __name__ == '__main__':
     logging.info("train start")
     segment.train("/home/wangzhe/cikm2014/data/uniq_train.txt", "/home/wangzhe/cikm2014/data/uniq_train_new.txt")
     logging.info("train end")
-    os.system(
-        "sort -t " " -k 1,1 /home/wangzhe/cikm2014/data/uniq_train_new.txt > /home/wangzhe/cikm2014/data/uniq_train_sort.txt")
+    os.system("sort -t " " -k 1,1 /home/wangzhe/cikm2014/data/uniq_train_new.txt > /home/wangzhe/cikm2014/data/uniq_train_sort.txt")
     # segment.save("data/model.txt")
     # logging.info("load start")
     # segment.load("data/model.txt")

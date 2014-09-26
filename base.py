@@ -123,7 +123,10 @@ class Base():
     def generate_full_train_file(self, train_file, save_file):
         dict = {}
         logging.info("read train file start")
+        index = 0
         for session in self.read_train_file(train_file):
+            logging.info(index)
+            index += 1
             for labels, query, title in session:
                 query_str = " ".join(query)
                 if query_str in dict:
