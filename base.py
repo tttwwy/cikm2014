@@ -244,12 +244,10 @@ class Base():
         sort_list = sorted(result_list, key=lambda x: x[1], reverse=True)
         return sort_list[0]
 
-    def session_predict(self, query_list, session):
-        predict_result = []
+    def session_predict(self, query_list, session):  
+        features = self.generate_feature(session)
+        predict_result = self.feature_predict(features)
         for index, (labels, query, title) in enumerate(session):
-            if query == query_list:
-                features = self.generate_feature(session, index)
-                predict_result = self.feature_predict(features)
             if "UNKNOWN" not in labels and "TEST" not in labels:
                 predict_result = (labels, 1.0)
 

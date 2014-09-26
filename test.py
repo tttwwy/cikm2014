@@ -1,5 +1,5 @@
 __author__ = 'Administrator'
-
+import sqlite3
 class A():
     a = "dd"
     def __init__(self):
