@@ -120,14 +120,14 @@ class WordSegment():
                     line = line.strip("\n").split()
                     if len(line) == 1:
                         line = list(line[0])
-                frq,frq_left,frq_right = self.count(line)
+                    frq,frq_left,frq_right = self.count(line)
 
-                for word in frq.keys():
-                    frq_str = " ".join(word,frq[word])
-                    left_str = "\t".join([" ".join(x,y) for x,y in frq_left[word].items()])
-                    right_str = "\t".join([" ".join(x,y) for x,y in frq_left[word].items()])
+                    for word in frq.keys():
+                        frq_str = " ".join(word,frq[word])
+                        left_str = "\t".join([" ".join(x,y) for x,y in frq_left[word].items()])
+                        right_str = "\t".join([" ".join(x,y) for x,y in frq_left[word].items()])
 
-                    f_write.write("{0}\t\t{1}\t\t{2}\n".format(frq_str,left_str,right_str))
+                        f_write.write("{0}\t\t{1}\t\t{2}\n".format(frq_str,left_str,right_str))
 
         # with open(file_write_name,'r') as f:
         #
