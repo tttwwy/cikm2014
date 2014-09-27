@@ -3,10 +3,13 @@ __author__ = 'Administrator'
 import sys
 
 for line in sys.stdin:
-    line = line.strip("\n")
-    if line:
-        label, query, title = line.split("\t")
-        print label
+    try:
+        line = line.strip("\n")
+        if line:
+            label, query, title = line.split("\t")
+            print "{0}\t{1]".format(label,0)
+    except Exception,e:
+        pass
 
 
 
