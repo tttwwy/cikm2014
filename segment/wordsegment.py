@@ -7,7 +7,7 @@ import pickle
 import sys
 import logging
 import os
-
+import base
 reload(sys)
 sys.setdefaultencoding('utf-8')
 logging.basicConfig(level=logging.INFO,
@@ -40,8 +40,9 @@ class WordSegment():
 
     def save(self, model_name):
         with open(model_name, 'w') as f:
-            for key, value in self.frq.items():
-                f.write("{0}\t{1}\t{2}\t{3}\n".format(key, value, self.inner[key], self.ent[key]))
+            for index,(key, value) in enumerate(self.frq.items()):
+                logging.info("save:{0}".format(index))
+                f.write("{0}\t{1}\t{2}\t{3}\n".format(key, value, self.cal_inner(key), self.cal_ent(key)))
 
 
     def load(self, model_name):
@@ -67,27 +68,23 @@ class WordSegment():
 
 
     def count(self, sentence):
-        frq = collections.defaultdict(int)
-        frq_left = collections.defaultdict(lambda: collections.defaultdict(int))
-        frq_right = collections.defaultdict(lambda: collections.defaultdict(int))
 
         for length in range(self.window):
             len_sentence = len(sentence)
             for index in range(len_sentence):
                 if index + length + 1 <= len_sentence:
                     cur_word = "".join(sentence[index:index + length + 1])
+                    if cur_word:
+                        self.frq[cur_word] += 1
 
-                    frq[cur_word] += 1
+                        left_word = "".join(sentence[index - self.edge_window:index])
+                        right_word = "".join(sentence[index + length + 1:index + length + self.edge_window + 1])
 
-                    left_word = "".join(sentence[index - self.edge_window:index])
-                    right_word = "".join(sentence[index + length + 1:index + length + self.edge_window + 1])
+                        if left_word:
+                            self.frq_left[cur_word][left_word] += 1
 
-                    if left_word:
-                        frq_left[cur_word][left_word] += 1
-
-                    if right_word:
-                        frq_right[cur_word][right_word] += 1
-        return frq, frq_left, frq_right
+                        if right_word:
+                            self.frq_right[cur_word][right_word] += 1
 
     def cal_inner(self, word):
         try:
@@ -119,6 +116,21 @@ class WordSegment():
         text_list =  [(text[:(i + 1)*self.word_len], text[(i + 1)*self.word_len:]) for i in range(min(self.get_word_len(text), self.window) - 1)]
         # print text_list
         return text_list
+
+    def old_train(self,train_file_name):
+        model = base.Base()
+        logging.info("train start")
+
+        for index,session in enumerate(model.read_train_file(train_file_name)):
+            for label,query,title in session:
+                logging.info("read train:{0}".format(index))
+                self.count(query)
+                if title:
+                    self.count(title)
+
+        logging.info("train start")
+
+
 
     def train(self, file_name, file_write_name, frq_min=5):
         with open(file_write_name, 'w') as f_write:
@@ -371,11 +383,13 @@ if __name__ == '__main__':
     # ngram.generate_dicts("dict.txt",frq_min=6,inner_min=1,ent_min=1.9,encoding='utf-8')
 
     segment = WordSegment()
+    segment.old_train("../data/1.txt")
+    segment.save("model.txt")
     # logging.info("train start")
     # segment.train("/home/wangzhe/cikm2014/data/uniq_train.txt", "/home/wangzhe/cikm2014/data/uniq_train_new.txt")
     # logging.info("train end")
     # os.system("sort -t " " -k 1,1 /home/wangzhe/cikm2014/data/uniq_train_new.txt > /home/wangzhe/cikm2014/data/uniq_train_sort.txt")
-    segment.reduce("/home/wangzhe/cikm2014/data/train/count.txt", "/home/wangzhe/cikm2014/data/train/dict_model.txt")
+    # segment.reduce("/home/wangzhe/cikm2014/data/train/count.txt", "/home/wangzhe/cikm2014/data/train/dict_model.txt")
 
     # segment.save("data/model.txt")
     # logging.info("load start")
