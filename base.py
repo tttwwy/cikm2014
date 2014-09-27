@@ -174,6 +174,7 @@ class Base():
 
         with open(test_submit_file, "r") as f:            
             with open(result, "w") as f_write:
+                index = 0
                 for line in f:
                         logging.info("save:{0}".format(index))
                         print index
@@ -187,7 +188,6 @@ class Base():
                                 label_str = "|".join(["CLASS=" + x for x in labels])
                                 str += "{0}\t{1}\t{2}\n".format(label_str, " ".join(query), " ".join(title))
                             str += "\n"
-                        logging.info(str)
                         f_write.write(str)
 
 
