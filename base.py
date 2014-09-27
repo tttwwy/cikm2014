@@ -159,6 +159,7 @@ class Base():
         logging.info("reading test start")
         for session in self.read_train_file(test_file):
             logging.info(index)
+            index += 1
             for labels, query, title in session:
                 if "TEST" in labels:
                     query_str = "".join(query)
