@@ -157,39 +157,39 @@ class Base():
     def generate_full_test_file(self, test_file, test_submit_file, result):
         dict = {}
         logging.info("read train file start")
-        index = 0
+        sessions = []
         for session in self.read_train_file(test_file):
-            logging.info(index)
-            index += 1
-            for labels, query, title in session:
+            sessions.append(session)
+
+        for session in sessions:
+            for index,(labels,query,title) in enumerate(session):
                 query_str = " ".join(query)
                 if query_str in dict:
-                    if session not in dict[query_str]:
-                        dict[query_str].append(session)
+                    dict[query_str].append(index)
                 else:
-                    dict[query_str] = [session]
+                    dict[query_str] = [index]
         logging.info("read train file end")
-        index = 0
 
         logging.info("saving test start")
 
-        with open(test_submit_file, "r") as f:
-            index = 0
+        with open(test_submit_file, "r") as f:            
             with open(result, "w") as f_write:
                 for line in f:
-                    logging.debug("reading test:{0}".format(index))
-                    query_str = line.strip()
-                    sessions = dict[query_str]
+                        logging.info("save:{0}".format(index))
+                        print index
+                        index += 1
+                        query_str = line.strip()
+                        session_list = sessions[dict[query_str]]
 
-                    str = "{0}\t{1}\t{2}\n".format("CLASS=SUBMIT", query_str, "-")
-                    for session in sessions:
-                        for labels, query, title in session:
-                            label_str = "|".join(["CLASS=" + x for x in labels])
-                            str += "{0}\t{1}\t{2}\n".format(label_str, " ".join(query), " ".join(title))
-                        str += "\n"
-                    f_write.write(str)
-                    index += 1
-                    logging.info("save:{0}".format(index))
+                        str = "{0}\t{1}\t{2}\n".format("CLASS=SUBMIT", query_str, "-")
+                        for session in session_list:
+                            for labels, query, title in sessions[session]:
+                                label_str = "|".join(["CLASS=" + x for x in labels])
+                                str += "{0}\t{1}\t{2}\n".format(label_str, " ".join(query), " ".join(title))
+                            str += "\n"
+                        logging.info(str)
+                        f_write.write(str)
+
 
     @run_time
     def generate_feature_file(self, base_file, feature_file):
