@@ -158,11 +158,14 @@ class Base():
         dict = {}
         logging.info("read train file start")
         sessions = []
-        for session in self.read_train_file(test_file):
+        for index,session in enumerate(self.read_train_file(test_file)):
+            logging.info("read train:{0}".format(index))
             sessions.append(session)
 
-        for session in sessions:
-            for index,(labels,query,title) in enumerate(session):
+        for index,session in enumerate(sessions):
+            logging.info("make dict:{0}".format(index))
+
+            for labels,query,title in session:
                 query_str = " ".join(query)
                 if query_str in dict:
                     dict[query_str].append(index)
@@ -174,11 +177,9 @@ class Base():
 
         with open(test_submit_file, "r") as f:            
             with open(result, "w") as f_write:
-                index = 0
-                for line in f:
+                for index,line in enumerate(f):
                         logging.info("save:{0}".format(index))
                         print index
-                        index += 1
                         query_str = line.strip()
                         session_list = sessions[dict[query_str]]
 
