@@ -1,10 +1,11 @@
 __author__ = 'Administrator'
 # coding=utf-8
 import sys
-import collections
 import time
 import logging
+
 from segment import wordsegment
+
 
 if sys.platform == "win32":
     log_level = logging.DEBUG
@@ -155,21 +156,20 @@ class Base():
     @run_time
     def generate_full_test_file(self, test_file, test_submit_file, result):
         dict = {}
+        logging.info("read train file start")
         index = 0
-        logging.info("reading test start")
         for session in self.read_train_file(test_file):
             logging.info(index)
             index += 1
             for labels, query, title in session:
-                if "TEST" in labels:
-                    query_str = "".join(query)
-                    if query_str in dict:
-                        if session not in dict[query_str]:
-                        # if session != dict[query_str][-1]:
-                            dict[query_str].append(session)
-                    else:
-                        dict[query_str] = [session]
-        logging.info("reading test end")
+                query_str = " ".join(query)
+                if query_str in dict:
+                    if session not in dict[query_str]:
+                        dict[query_str].append(session)
+                else:
+                    dict[query_str] = [session]
+        logging.info("read train file end")
+        index = 0
 
         logging.info("saving test start")
 
@@ -178,12 +178,10 @@ class Base():
             with open(result, "w") as f_write:
                 for line in f:
                     logging.debug("reading test:{0}".format(index))
-
-                    query_list = line.strip().split(" ")
-                    query_str = "".join(query_list)
+                    query_str = line.strip()
                     sessions = dict[query_str]
 
-                    str = "{0}\t{1}\t{2}\n".format("CLASS=SUBMIT", " ".join(query_list), "-")
+                    str = "{0}\t{1}\t{2}\n".format("CLASS=SUBMIT", query_str, "-")
                     for session in sessions:
                         for labels, query, title in session:
                             label_str = "|".join(["CLASS=" + x for x in labels])
@@ -191,7 +189,7 @@ class Base():
                         str += "\n"
                     f_write.write(str)
                     index += 1
-                    logging.info("save:{1}".format(index))
+                    logging.info("save:{0}".format(index))
 
     @run_time
     def generate_feature_file(self, base_file, feature_file):
@@ -306,11 +304,9 @@ class Base():
 
 
 if __name__ == '__main__':
-    pass
-    # generate_feature_file("data/test.txt", "features.txt")
-    # generate_full_test_file("data/test.txt","data/submit.txt","data/result.txt")
-    # for session in read_test("data/result.txt"):
-    # print session
+    base = Base()
+    base.generate_full_test_file("data/1.txt", "data/2.txt", "data/result.txt")
+
 
 
 
