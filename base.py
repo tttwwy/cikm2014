@@ -124,33 +124,37 @@ class Base():
     def generate_full_train_file(self, train_file, save_file):
         dict = {}
         logging.info("read train file start")
-        index = 0
-        for session in self.read_train_file(train_file):
-            logging.info(index)
-            index += 1
-            for labels, query, title in session:
+        sessions = []
+        for index,session in enumerate(self.read_train_file(train_file)):
+            logging.info("read train:{0}".format(index))
+            sessions.append(session)
+
+        for index,session in enumerate(sessions):
+            logging.info("make dict:{0}".format(index))
+
+            for labels,query,title in session:
                 query_str = " ".join(query)
                 if query_str in dict:
-                    if session not in dict[query_str]:
-                        dict[query_str].append(session)
+                    dict[query_str].append(index)
                 else:
-                    dict[query_str] = [session]
+                    dict[query_str] = [index]
         logging.info("read train file end")
-        logging.info("saving file start")
-        index = 0
-        with open(save_file, 'w') as f_write:
-            for query_str in dict.keys():
-                logging.info("save:{1}".format(index))
-                index += 1
-                str = "{0}\t{1}\t{2}\n".format("CLASS=SUBMIT",query_str, "-")
 
-                for session in dict[query_str]:
+        logging.info("saving test start")
+
+        with open(save_file, "w") as f_write:
+            for index,(query_str,session_list) in enumerate(dict.items()):
+                logging.info("save:{0}".format(index) )
+                str = "{0}\t{1}\t{2}\n".format("CLASS=SUBMIT", query_str, "-")
+                for item in session_list:
+                    session = sessions[item]
                     for labels, query, title in session:
                         label_str = "|".join(["CLASS=" + x for x in labels])
                         str += "{0}\t{1}\t{2}\n".format(label_str, " ".join(query), " ".join(title))
                     str += "\n"
                 f_write.write(str)
-        logging.info("saving file end")
+        logging.info("saving test end")
+
 
 
     @run_time
@@ -305,7 +309,7 @@ class Base():
 
 if __name__ == '__main__':
     base = Base()
-    base.generate_full_test_file("data/1.txt", "data/2.txt", "data/result.txt")
+    base.generate_full_train_file("data/1.txt", "data/result.txt")
 
 
 
