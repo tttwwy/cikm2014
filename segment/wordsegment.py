@@ -35,6 +35,7 @@ class WordSegment():
         self.ent = collections.defaultdict(int)
         self.ent_total = collections.defaultdict(int)
         self.dicts = collections.defaultdict(int)
+        self.word_len = 7
 
 
     def save(self, model_name):
@@ -90,12 +91,12 @@ class WordSegment():
 
     def cal_inner(self, word):
         try:
-            if len(word) == 1:
+            if self.get_word_len(word) == 1:
                 return 100
             max_inner = max(
-                [float(self.frq[left] * self.frq[right]) / (self.frq_total[len(right)] * self.frq_total[len(left)]) for
+                [float(self.frq[left] * self.frq[right]) / (self.frq_total[self.get_word_len(right)] * self.frq_total[self.get_word_len(left)]) for
                  left, right in self.splits(word)])
-            return float(self.frq[word]) / (max_inner * self.frq_total[len(word)])
+            return float(self.frq[word]) / (max_inner * self.frq_total[self.get_word_len(word)])
         except Exception, ex:
             return 0
 
@@ -115,7 +116,9 @@ class WordSegment():
             return (-1)
 
     def splits(self, text):
-        return [(text[:i + 1], text[i + 1:]) for i in range(min(len(text), self.window) - 1)]
+        text_list =  [(text[:(i + 1)*self.word_len], text[(i + 1)*self.word_len:]) for i in range(min(self.get_word_len(text), self.window) - 1)]
+        # print text_list
+        return text_list
 
     def train(self, file_name, file_write_name, frq_min=5):
         with open(file_write_name, 'w') as f_write:
@@ -134,50 +137,66 @@ class WordSegment():
 
                         f_write.write("{0}\t\t{1}\t\t{2}\n".format(frq_str, left_str, right_str))
 
+    def get_word_len(self,word):
+        return len(word)/self.word_len
 
     def reduce(self, file_name, model_name):
         self.frq_total = collections.defaultdict(int)
         self.frq = collections.defaultdict(int)
         self.frq_left = collections.defaultdict(lambda: collections.defaultdict(int))
         self.frq_right = collections.defaultdict(lambda: collections.defaultdict(int))
+        logging.info("cal total start")
+
         with open(file_name, 'r') as file_read:
-            for line in file_read:
-                line = line.strip()
+            for index,line in enumerate(file_read):
+                line = line.strip("\n")
+                logging.info(index)
                 if line:
                     frq_str, left_str, right_str = line.split("\t\t")
                     word, frq_value = frq_str.split(" ")
-                    self.frq_total[len(word)] += frq_value
-
+                    frq_value = int(frq_value)
+                    self.frq_total[self.get_word_len(word)] += frq_value
+                    self.frq[word] += frq_value
+        
+        logging.info("cal total end")
+        logging.info("cal model start")
         with open(file_name, 'r') as file_read:
             with open(model_name, 'w') as file_write:
                 cur_word = ""
-                for line in file_read:
-                    line = line.strip()
-                    if line:
-                        frq_str, left_str, right_str = line.split("\t\t")
-                        word, frq_value = frq_str.split(" ")
-                        if cur_word == "":
-                            cur_word = word
-                        if word != cur_word:
-                            frq_value = self.frq[cur_word]
-                            ent = self.cal_ent(cur_word)
-                            inner = self.inner(cur_word)
-                            file_write.write("{0}\t{1}\t{2}\t{3}\n".format(cur_word, frq_value, inner, ent))
+                for index,line in enumerate(file_read):
+                        line = line.strip("\n")
+                        logging.info(line)
+                        if line:
+                            frq_str, left_str, right_str = line.split("\t\t")
+                            word, frq_value = frq_str.split(" ")
+                            frq_value = int(frq_value)
+                            if cur_word == "":
+                                cur_word = word
+                            if word != cur_word:
+                                frq_value = self.frq[cur_word]
+                                ent = self.cal_ent(cur_word)
+                                inner = self.cal_inner(cur_word)
+                                file_write.write("{0}\t{1}\t{2}\t{3}\n".format(cur_word, frq_value, inner, ent))
 
-                            self.frq = collections.defaultdict(int)
-                            self.frq_left = collections.defaultdict(lambda: collections.defaultdict(int))
-                            self.frq_right = collections.defaultdict(lambda: collections.defaultdict(int))
-                            cur_word = word
+                                self.frq_left = collections.defaultdict(lambda: collections.defaultdict(int))
+                                self.frq_right = collections.defaultdict(lambda: collections.defaultdict(int))
+                                cur_word = word
+                        try:
 
-                        self.frq[word] += value
+                            for line in left_str.split("\t"):
+                                left_word, value = line.split(" ")
+                                value = int(value)
+                                self.frq_left[word][left_word] += value
 
-                        for line in left_str.split("\t"):
-                            left_word, value = line.split(" ")
-                            self.frq_left[word][left_word] += value
+                            for line in right_str.split("\t"):
+                                right_word, value = line.split(" ")
+                                value = int(value)
+                                self.frq_right[word][right_word] += value
+                        except Exception,e:
+                            logging.info(sys.exc_info() )
+                            logging.info(e)
 
-                        for line in right_str.split("\t"):
-                            right_word, value = line.split(" ")
-                            self.frq_right[word][right_word] += value
+        logging.info("cal model end")
 
 
 
@@ -352,10 +371,12 @@ if __name__ == '__main__':
     # ngram.generate_dicts("dict.txt",frq_min=6,inner_min=1,ent_min=1.9,encoding='utf-8')
 
     segment = WordSegment()
-    logging.info("train start")
-    segment.train("/home/wangzhe/cikm2014/data/uniq_train.txt", "/home/wangzhe/cikm2014/data/uniq_train_new.txt")
-    logging.info("train end")
-    os.system("sort -t " " -k 1,1 /home/wangzhe/cikm2014/data/uniq_train_new.txt > /home/wangzhe/cikm2014/data/uniq_train_sort.txt")
+    # logging.info("train start")
+    # segment.train("/home/wangzhe/cikm2014/data/uniq_train.txt", "/home/wangzhe/cikm2014/data/uniq_train_new.txt")
+    # logging.info("train end")
+    # os.system("sort -t " " -k 1,1 /home/wangzhe/cikm2014/data/uniq_train_new.txt > /home/wangzhe/cikm2014/data/uniq_train_sort.txt")
+    segment.reduce("/home/wangzhe/cikm2014/data/train/count.txt", "/home/wangzhe/cikm2014/data/train/dict_model.txt")
+
     # segment.save("data/model.txt")
     # logging.info("load start")
     # segment.load("data/model.txt")
