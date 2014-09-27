@@ -136,8 +136,11 @@ class Base():
                     dict[query_str] = [session]
         logging.info("read train file end")
         logging.info("saving file start")
+        index = 0
         with open(save_file, 'w') as f_write:
             for query_str in dict.keys():
+                logging.info("save:{1}".format(index))
+                index += 1
                 str = "{0}\t{1}\t{2}\n".format("CLASS=SUBMIT",query_str, "-")
 
                 for session in dict[query_str]:
@@ -152,8 +155,10 @@ class Base():
     @run_time
     def generate_full_test_file(self, test_file, test_submit_file, result):
         dict = {}
+        index = 0
         logging.info("reading test start")
         for session in self.read_train_file(test_file):
+            logging.info(index)
             for labels, query, title in session:
                 if "TEST" in labels:
                     query_str = "".join(query)
@@ -185,7 +190,7 @@ class Base():
                         str += "\n"
                     f_write.write(str)
                     index += 1
-
+                    logging.info("save:{1}".format(index))
 
     @run_time
     def generate_feature_file(self, base_file, feature_file):
