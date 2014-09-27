@@ -181,11 +181,10 @@ class Base():
                         logging.info("save:{0}".format(index))
                         print index
                         query_str = line.strip()
-                        session_list = sessions[dict[query_str]]
-
                         str = "{0}\t{1}\t{2}\n".format("CLASS=SUBMIT", query_str, "-")
-                        for session in session_list:
-                            for labels, query, title in sessions[session]:
+                        for item in dict[query_str]:
+                            session = sessions[item]
+                            for labels, query, title in session:
                                 label_str = "|".join(["CLASS=" + x for x in labels])
                                 str += "{0}\t{1}\t{2}\n".format(label_str, " ".join(query), " ".join(title))
                             str += "\n"
