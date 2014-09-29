@@ -244,7 +244,7 @@ class Base():
                 if line != "":
                     if line != "\n":
                         labels, query, title = line.strip("\n").split("\t")
-                        labels = labels.split(" | ")
+                        labels = labels.split("|")
                         for index, label in enumerate(labels):
                             labels[index] = label[6:]
                         query_list = query.split(" ")
@@ -350,8 +350,8 @@ class Base():
 
 if __name__ == '__main__':
     base = Base()
-    base.generate_full_train_file("data/1.txt", "data/result.txt")
-
+    # base.generate_full_train_file("data/1.txt", "data/result.txt")
+    base.generate_feature_file("data/1.txt","data/feature.txt")
 
 
 
