@@ -11,10 +11,10 @@ import MySQLdb
 reload(sys)
 sys.setdefaultencoding('utf-8')
 logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s %(message)s',
+                    format='%(process)d %(asctime)s %(message)s',
                     datefmt='%m-%d %H:%M:%S',
                     filename='segment.log',
-                    filemode='w')
+                    filemode='a')
 
 
 class WordSegment():
@@ -166,13 +166,15 @@ class WordSegment():
     def old_train(self, train_file_name):
         logging.info("train start")
         with open(train_file_name, 'r') as f:
-            for index, line in enumerate(f):
-                print index
-                word_list = line.strip().split(" ")
-                logging.info("read train:{0}".format(index))
-                self.count(word_list)
-
-            logging.info("train start")
+            try:
+                for index, line in enumerate(f):
+                    print index
+                    word_list = line.strip().split(" ")
+                    # logging.info("read train:{0}".format(index))
+                    self.count(word_list)
+            except Exception,e:
+                logging.info(e)
+        logging.info("train end")
 
 
     def train(self, file_name, file_write_name, frq_min=5):
