@@ -209,7 +209,7 @@ class Base():
                                 label_str = "|".join(labels)
                                 if label_str not in standard_lables:
                                     label_str = "|".join(reversed(labels))
-                                    label_count[label_str] += 1
+                                label_count[label_str] += 1
 
                     sort_list = sorted(label_count.keys(),key=lambda x:label_count[x],reverse=True)
                     cur_label = sort_list[0]
