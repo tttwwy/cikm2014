@@ -219,7 +219,6 @@ class Base():
                 except Exception,e:
                     logging.info(e)
                     logging.info(label_str)
-                    logging.info()
 
 
 
