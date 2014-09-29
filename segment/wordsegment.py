@@ -45,10 +45,10 @@ class WordSegment():
         key1 = types[key_type]
         if word:
             key2 = word[0]
-            sql = "select value from kv where key1 = {0} and key2 = '{1}'".format(key1, key2)
+            sql = "select key3,value from kv where key1 = {0} and key2 = '{1}'".format(key1, key2)
         else:
-            sql = "select DISTINCT key2 from kv where key1 = {0}".format(key1)
-        print sql
+            sql = "select DISTINCT key2,value from kv where key1 = {0}".format(key1)
+        # print sql
         self.cursor.execute(sql)
         data = self.cursor.fetchall()
         return data
@@ -56,7 +56,7 @@ class WordSegment():
 
     def update(self, key_type, *word):
         types = {"frq": 1, "left": 2, "right": 3}
-        print word
+        # print word
         key1 = types[key_type]
         key2 = word[0]
         key3 = ""
@@ -66,7 +66,7 @@ class WordSegment():
         sql = "insert into kv (key1,key2,key3,value)values ({0},'{1}','{2}',1) " \
               "on DUPLICATE key update value = value + 1".format(
             key1, key2, key3)
-        print sql
+        # print sql
         self.cursor.execute(sql)
 
     def save(self, model_name):
@@ -106,40 +106,53 @@ class WordSegment():
                 if index + length + 1 <= len_sentence:
                     cur_word = "".join(sentence[index:index + length + 1])
                     if cur_word:
-                        self.frq[cur_word] += 1
+                        # self.frq[cur_word] += 1
+                        self.update("frq",cur_word)
+                        self.update("frq",str(self.get_word_len(cur_word)))
 
                         left_word = "".join(sentence[index - self.edge_window:index])
                         right_word = "".join(sentence[index + length + 1:index + length + self.edge_window + 1])
 
                         if left_word:
-                            self.frq_left[cur_word][left_word] += 1
+                            self.update("left",cur_word,left_word)
+                            # self.frq_left[cur_word][left_word] += 1
 
                         if right_word:
-                            self.frq_right[cur_word][right_word] += 1
+                            self.update("right",cur_word,right_word)
+
+                            # self.frq_right[cur_word][right_word] += 1
 
     def cal_inner(self, word):
         try:
             if self.get_word_len(word) == 1:
                 return 100
+
             max_inner = max(
-                [float(self.frq[left] * self.frq[right]) / (
-                    self.frq_total[self.get_word_len(right)] * self.frq_total[self.get_word_len(left)]) for
-                 left, right in self.splits(word)])
-            return float(self.frq[word]) / (max_inner * self.frq_total[self.get_word_len(word)])
+                [float(self.get("frq",left)[1]) * self.get("frq",right)[1]
+                       /
+                       (
+                           self.get("frq",str(self.get_word_len(right)))[1] * self.get("frq",str(self.get_word_len(left)))[1]
+                       ) for
+                       left, right in self.splits(word)])
+            result = float(self.get("frq",word)[1])
+            result /= max_inner
+            result /= self.get("frq",str(self.get_word_len(word) ))[1]
+
         except Exception, ex:
             return 0
 
 
     def cal_ent(self, word):
         try:
-            left_frq = sum(self.frq_left[word].values())
-            right_frq = sum(self.frq_right[word].values())
-            left_ent = [-float(value) / left_frq * math.log(float(value) / left_frq, 2) for key, value in
-                        self.frq_left[word].items()]
-            left_ent = sum(left_ent)
-            right_ent = [-float(value) / right_frq * math.log(float(value) / right_frq, 2) for key, value in
-                         self.frq_right[word].items()]
-            right_ent = sum(right_ent)
+            left_frq = sum([value for x,y,value in self.get("left",word)])
+            right_frq = sum([value for x,y,value in self.get("right",word)])
+
+            left_ent = [-float(value)  * math.log(float(value) / left_frq, 2) for key, value in
+                        self.get("left",word)]
+            left_ent = sum(left_ent)/ left_frq
+            right_ent = [-float(value)  * math.log(float(value) / right_frq, 2) for key, value in
+                         self.get("right",word)]
+            right_ent = sum(right_ent)/ right_frq
             return min(left_ent, right_ent)
         except Exception, ex:
             return -1
@@ -413,9 +426,9 @@ if __name__ == '__main__':
     # ngram.generate_dicts("dict.txt",frq_min=6,inner_min=1,ent_min=1.9,encoding='utf-8')
 
     segment = WordSegment()
-    segment.update("frq",'bdd')
-    print segment.get("frq")
-    # segment.old_train("../data/1.txt")
+    # segment.update("frq",'bdd')
+    # print segment.get("left",'a')
+    segment.old_train("../data/submit.txt")
     # segment.save("model.txt")
     # logging.info("train start")
     # segment.train("/home/wangzhe/cikm2014/data/uniq_train.txt", "/home/wangzhe/cikm2014/data/uniq_train_new.txt")
