@@ -3,6 +3,7 @@ __author__ = 'Administrator'
 import sys
 import time
 import logging
+import collections
 
 from segment import wordsegment
 
@@ -18,15 +19,6 @@ logging.basicConfig(level=log_level,
 
 
 class Base():
-    lables = ("ZIPCODE", "NOVEL", "GAME", "TRAVEL", "VIDEO", "LOTTERY", "OTHER",
-              "GAME|LOTTERY",
-              "GAME|NOVEL",
-              "GAME|TRAVEL",
-              "GAME|VIDEO",
-              "NOVEL|VIDEO",
-              "VIDEO|LOTTERY",
-              "VIDEO|TRAVEL",
-              "ZIPCODE|TRAVEL")
     segment = wordsegment.WordSegment()
     # segment.read_dict("segment/data/dict.txt")
 
@@ -197,15 +189,49 @@ class Base():
 
     @run_time
     def generate_feature_file(self, base_file, feature_file):
-        with open(feature_file, "w") as f:
-            for session in self.read_train_file(base_file):
-                for index, (labels, query, title) in enumerate(session):
-                    if "UNKNOWN" not in labels and "TEST" not in labels:
-                        features = self.generate_feature(session, index)
-                        label_str = "|".join(labels)
-                        if label_str not in Base.labels:
-                            label_str = "|".join(reversed(labels))
-                        f.write("{0} {1}\n".format(label_str, " ".join(features)))
+        standard_lables = ("ZIPCODE", "NOVEL", "GAME", "TRAVEL", "VIDEO", "LOTTERY", "OTHER",
+          "GAME|LOTTERY",
+          "GAME|NOVEL",
+          "GAME|TRAVEL",
+          "GAME|VIDEO",
+          "NOVEL|VIDEO",
+          "VIDEO|LOTTERY",
+          "VIDEO|TRAVEL",
+          "ZIPCODE|TRAVEL")
+
+        with open(feature_file,'w') as f:
+            for query,sessions in self.read_test(base_file):
+                labels = collections.defaultdict(int)
+                try:
+                    for session in sessions:
+                        for label,query,title in session:
+                            if "UNKNOWN" not in labels and "TEST" not in labels:
+                                label_str = "|".join(labels)
+                                if label_str not in standard_lables:
+                                    label_str = "|".join(reversed(labels))
+                                    labels[label_str] += 1
+
+                    sort_list = sorted(labels.keys(),key=lambda x:labels[x],reverse=True)
+                    cur_label = sort_list[0]
+                    for session in sessions:
+                        features = self.generate_feature(session)
+                        f.write("{0} {1}\n".format(cur_label, " ".join(features)))
+                except Exception,e:
+                    logging.info(e)
+
+
+
+        #
+        #
+        # with open(feature_file, "w") as f:
+        #     for session in self.read_train_file(base_file):
+        #         for index, (labels, query, title) in enumerate(session):
+        #             if "UNKNOWN" not in labels and "TEST" not in labels:
+        #                 features = self.generate_feature(session, index)
+        #                 label_str = "|".join(labels)
+        #                 if label_str not in Base.labels:
+        #                     label_str = "|".join(reversed(labels))
+        #                 f.write("{0} {1}\n".format(label_str, " ".join(features)))
 
     @run_time
     def read_test(self, file_name):
@@ -249,9 +275,9 @@ class Base():
     def model_predict(self, label, feature):
         pass
 
-    def generate_feature(self, session, i):
+    def generate_feature(self, session):
         features = set()
-        labels, query, title = session[i]
+        # labels, query, title = session[i]
         # query_segment = self.word_segment(query)
         # title_segment = self.word_segment(title)
 
@@ -269,15 +295,29 @@ class Base():
                 features.add(word)
             for index in range(len(query)):
                 features.add("".join(query[index:index + 2]))
+            for index in range(len(query)):
+                features.add("".join(query[index:index + 3]))
 
             for word in title:
                 features.add("title" + word)
             for index in range(len(title)):
                 features.add("title" + "".join(title[index:index + 2]))
+            for index in range(len(title)):
+                features.add("title" + "".join(title[index:index + 3]))
+
         return list(features)
 
     def feature_predict(self, feature):
-        result_list = [(label.split("|"), self.model_predict(label, feature)) for label in Base.lables]
+        standard_lables = ("ZIPCODE", "NOVEL", "GAME", "TRAVEL", "VIDEO", "LOTTERY", "OTHER",
+          "GAME|LOTTERY",
+          "GAME|NOVEL",
+          "GAME|TRAVEL",
+          "GAME|VIDEO",
+          "NOVEL|VIDEO",
+          "VIDEO|LOTTERY",
+          "VIDEO|TRAVEL",
+          "ZIPCODE|TRAVEL")
+        result_list = [(label.split("|"), self.model_predict(label, feature)) for label in standard_lables]
         sort_list = sorted(result_list, key=lambda x: x[1], reverse=True)
         return sort_list[0]
 
