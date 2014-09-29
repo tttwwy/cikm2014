@@ -201,23 +201,25 @@ class Base():
 
         with open(feature_file,'w') as f:
             for query,sessions in self.read_test(base_file):
-                labels = collections.defaultdict(int)
+                label_count = collections.defaultdict(int)
                 try:
                     for session in sessions:
-                        for label,query,title in session:
+                        for labels,query,title in session:
                             if "UNKNOWN" not in labels and "TEST" not in labels:
                                 label_str = "|".join(labels)
                                 if label_str not in standard_lables:
                                     label_str = "|".join(reversed(labels))
-                                    labels[label_str] += 1
+                                    label_count[label_str] += 1
 
-                    sort_list = sorted(labels.keys(),key=lambda x:labels[x],reverse=True)
+                    sort_list = sorted(label_count.keys(),key=lambda x:label_count[x],reverse=True)
                     cur_label = sort_list[0]
                     for session in sessions:
                         features = self.generate_feature(session)
                         f.write("{0} {1}\n".format(cur_label, " ".join(features)))
                 except Exception,e:
                     logging.info(e)
+                    logging.info(label_str)
+                    logging.info()
 
 
 
