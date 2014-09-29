@@ -164,7 +164,7 @@ class WordSegment():
         return text_list
 
     def old_train(self, train_file_name):
-        logging.info("train start")
+        logging.info("{0}:train start".format(train_file_name))
         with open(train_file_name, 'r') as f:
             try:
                 for index, line in enumerate(f):
@@ -174,7 +174,7 @@ class WordSegment():
                     self.count(word_list)
             except Exception,e:
                 logging.info(e)
-        logging.info("train end")
+        logging.info("{0}:train end".format(train_file_name))
 
 
     def train(self, file_name, file_write_name, frq_min=5):
@@ -430,7 +430,7 @@ if __name__ == '__main__':
     segment = WordSegment()
     # segment.update("frq",'bdd')
     # print segment.get("left",'a')
-    segment.old_train("../data/submit.txt")
+    segment.old_train(sys.argv[1])
     # segment.save("model.txt")
     # logging.info("train start")
     # segment.train("/home/wangzhe/cikm2014/data/uniq_train.txt", "/home/wangzhe/cikm2014/data/uniq_train_new.txt")
