@@ -40,6 +40,7 @@ class WordSegment():
         self.cursor = db.cursor()
 
 
+
     def get(self, key_type, *word):
         types = {"frq": 1, "left": 2, "right": 3}
         key1 = types[key_type]
@@ -129,11 +130,11 @@ class WordSegment():
 
             max_inner = max(
                 [float(self.get("frq",left)[1]) * self.get("frq",right)[1]
-                       /
-                       (
-                           self.get("frq",str(self.get_word_len(right)))[1] * self.get("frq",str(self.get_word_len(left)))[1]
-                       ) for
-                       left, right in self.splits(word)])
+                 /
+                 (
+                     self.get("frq",str(self.get_word_len(right)))[1] * self.get("frq",str(self.get_word_len(left)))[1]
+                 ) for
+                 left, right in self.splits(word)])
             result = float(self.get("frq",word)[1])
             result /= max_inner
             result /= self.get("frq",str(self.get_word_len(word) ))[1]
